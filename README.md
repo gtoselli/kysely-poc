@@ -2,5 +2,6 @@
 
 ```shell
 pnpm i
-pnpm run start:dev
+pnpm exec prisma migrate dev
+pnpm run test
 ```

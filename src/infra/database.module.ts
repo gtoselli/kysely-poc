@@ -1,13 +1,13 @@
 import { Global, Inject, Module } from '@nestjs/common';
 import { Kysely, SqliteDialect } from 'kysely';
 import * as SQLite from 'better-sqlite3';
-import { ConcertTable } from '../concerts/concerts.repo';
+import { Concert } from '../../prisma/generated/types';
 
 const DATABASE_TOKEN = 'DATABASE';
 export const InjectDatabase = () => Inject(DATABASE_TOKEN);
 
 export interface Database {
-  concerts: ConcertTable;
+  concerts: Concert;
 }
 
 @Global()
@@ -18,7 +18,7 @@ export interface Database {
       provide: DATABASE_TOKEN,
       useFactory: () => {
         const dialect = new SqliteDialect({
-          database: new SQLite(':memory:'),
+          database: new SQLite('dev.db'),
         });
 
         return new Kysely<Database>({

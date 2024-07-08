@@ -1,23 +1,9 @@
 import { Database, InjectDatabase } from '../infra/database.module';
-import { Generated, Kysely } from 'kysely';
+import { Kysely } from 'kysely';
 import { nanoid } from 'nanoid';
-import { OnModuleInit } from '@nestjs/common';
 
-export interface ConcertTable {
-  id: Generated<string>;
-  title: string;
-}
-
-export class ConcertsRepo implements OnModuleInit {
+export class ConcertsRepo {
   constructor(@InjectDatabase() private readonly database: Kysely<Database>) {}
-
-  async onModuleInit() {
-    await this.database.schema
-      .createTable('concerts')
-      .addColumn('id', 'varchar')
-      .addColumn('title', 'varchar')
-      .execute();
-  }
 
   public async addOne(title: string) {
     const id = nanoid();

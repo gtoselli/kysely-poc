@@ -13,7 +13,6 @@ describe('Concerts component spec', () => {
     }).compile();
 
     concertsRepo = module.get(ConcertsRepo);
-    await concertsRepo.onModuleInit();
   });
 
   afterAll(async () => {
