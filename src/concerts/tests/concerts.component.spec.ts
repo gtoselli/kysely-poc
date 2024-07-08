@@ -1,18 +1,19 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ConcertsRepo } from '../concerts.repo';
 import { DatabaseModule } from '../../infra/database.module';
+import { ConcertsService } from '../concerts.service';
 
 describe('Concerts component spec', () => {
   let module: TestingModule;
-  let concertsRepo: ConcertsRepo;
+  let service: ConcertsService;
 
   beforeAll(async () => {
     module = await Test.createTestingModule({
       imports: [DatabaseModule],
-      providers: [ConcertsRepo],
+      providers: [ConcertsService, ConcertsRepo],
     }).compile();
 
-    concertsRepo = module.get(ConcertsRepo);
+    service = module.get(ConcertsService);
   });
 
   afterAll(async () => {
@@ -20,9 +21,9 @@ describe('Concerts component spec', () => {
   });
 
   it('add and get concert', async () => {
-    const { id } = await concertsRepo.addOne('Jake la Furia');
+    const { id } = await service.addOne('Jake la Furia');
 
-    const concert = await concertsRepo.getById(id);
+    const concert = await service.getById(id);
 
     expect(concert.title).toBe('Jake la Furia');
   });

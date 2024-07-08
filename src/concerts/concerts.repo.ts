@@ -1,13 +1,17 @@
 import { Database, InjectDatabase } from '../infra/database.module';
 import { Kysely } from 'kysely';
 import { nanoid } from 'nanoid';
+import { Concert } from './concerts.service';
 
 export class ConcertsRepo {
   constructor(@InjectDatabase() private readonly database: Kysely<Database>) {}
 
-  public async addOne(title: string) {
+  public async addOne(concert: Concert) {
     const id = nanoid();
-    await this.database.insertInto('concerts').values({ id, title }).execute();
+    await this.database
+      .insertInto('concerts')
+      .values({ ...concert })
+      .execute();
 
     return { id };
   }
@@ -19,6 +23,6 @@ export class ConcertsRepo {
       .selectAll()
       .execute();
 
-    return results.length ? results[0] : null;
+    return results.length ? (results[0] as Concert) : null;
   }
 }
