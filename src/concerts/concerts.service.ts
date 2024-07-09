@@ -9,7 +9,13 @@ export type Concert = {
 
 @Injectable()
 export class ConcertsService {
-  constructor(private readonly repo: ConcertsRepo) {}
+  constructor(private readonly repo: ConcertsRepo) {
+    this.repo.setTransactionalHook(async (trx) => {
+      console.log('doing something transactional for 1s');
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      console.log('done doing something transactional for 1s');
+    });
+  }
 
   public async addOne(title: string) {
     const id = nanoid();

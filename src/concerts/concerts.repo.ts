@@ -1,10 +1,14 @@
 import { Database, InjectDatabase } from '../infra/database.module';
-import { Kysely } from 'kysely';
+import { Kysely, Transaction } from 'kysely';
 import { Concert } from './concerts.service';
 import { Injectable } from '@nestjs/common';
 
+export type TransactionalHook = (trx: Transaction<Database>) => Promise<void>;
+
 @Injectable()
 export class ConcertsRepo {
+  private transactionalHook?: TransactionalHook;
+
   constructor(@InjectDatabase() private readonly database: Kysely<Database>) {}
 
   public async upsert(concert: Concert) {
@@ -21,12 +25,15 @@ export class ConcertsRepo {
           .set({ ...concert })
           .where('id', '=', concert.id)
           .execute();
+        await this.transactionalHook?.(trx);
         return;
       }
+
       await trx
         .insertInto('concerts')
         .values({ ...concert })
         .execute();
+      await this.transactionalHook?.(trx);
     });
   }
 
@@ -38,5 +45,9 @@ export class ConcertsRepo {
       .execute();
 
     return results.length ? (results[0] as Concert) : null;
+  }
+
+  public setTransactionalHook(hook: TransactionalHook) {
+    this.transactionalHook = hook;
   }
 }
