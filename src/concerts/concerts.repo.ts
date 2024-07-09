@@ -1,8 +1,8 @@
 import { Database, InjectDatabase } from '../infra/database.module';
 import { Kysely, Transaction } from 'kysely';
-import { ConcertModel } from './concerts.service';
 import { Injectable } from '@nestjs/common';
-import { ConcertAggregate } from './domain/concert.aggregate';
+import { ConcertAggregate, SeatsEntity } from './domain/concert.aggregate';
+import { Concert } from '../../prisma/generated/types';
 
 export type TransactionalHook = (trx: Transaction<Database>) => Promise<void>;
 
@@ -13,7 +13,11 @@ export class ConcertsRepo {
   constructor(@InjectDatabase() private readonly database: Kysely<Database>) {}
 
   public async saveAndSerialize(concert: ConcertAggregate) {
-    const concertModel: ConcertModel = { id: concert.id, title: concert.title };
+    const concertModel: Concert = {
+      id: concert.id,
+      title: concert.title,
+      seats: JSON.stringify(concert.seatsEntity.seats),
+    };
 
     await this.database.transaction().execute(async (trx) => {
       const exists = await trx
@@ -41,13 +45,19 @@ export class ConcertsRepo {
   }
 
   public async getByIdAndDeserialize(id: string) {
-    const result = await this.database
+    const concertModel = await this.database
       .selectFrom('concerts')
       .where('id', '=', id)
       .selectAll()
       .executeTakeFirst();
 
-    return result ? new ConcertAggregate(result.id, result.title) : null;
+    return concertModel
+      ? new ConcertAggregate(
+          concertModel.id,
+          concertModel.title,
+          new SeatsEntity(JSON.parse(concertModel.seats)),
+        )
+      : null;
   }
 
   public setTransactionalHook(hook: TransactionalHook) {

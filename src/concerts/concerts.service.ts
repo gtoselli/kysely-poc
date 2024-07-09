@@ -2,11 +2,6 @@ import { ConcertsRepo } from './concerts.repo';
 import { Injectable } from '@nestjs/common';
 import { ConcertAggregate } from './domain/concert.aggregate';
 
-export type ConcertModel = {
-  id: string;
-  title: string;
-};
-
 @Injectable()
 export class ConcertsService {
   constructor(private readonly repo: ConcertsRepo) {
@@ -17,8 +12,8 @@ export class ConcertsService {
     });
   }
 
-  public async create(title: string) {
-    const concert = ConcertAggregate.factory(title);
+  public async create(title: string, seatingCapacity: number) {
+    const concert = ConcertAggregate.factory(title, seatingCapacity);
 
     await this.repo.saveAndSerialize(concert);
     return { id: concert.id };
@@ -28,6 +23,13 @@ export class ConcertsService {
     const concert = await this.getById(id);
 
     concert.rename(newTitle);
+    await this.repo.saveAndSerialize(concert);
+  }
+
+  public async reserveSeat(id: string, seatNumber: number) {
+    const concert = await this.getById(id);
+
+    concert.reserveSeat(seatNumber);
     await this.repo.saveAndSerialize(concert);
   }
 

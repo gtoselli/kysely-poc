@@ -13,6 +13,7 @@ datasource db {
 model Concert {
   id    String @id
   title String
+  seats String
 
   @@map("concerts")
 }

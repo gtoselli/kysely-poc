@@ -22,7 +22,7 @@ describe('Concerts component spec', () => {
 
   describe('create', () => {
     it('should create a concert', async () => {
-      const { id } = await service.create('Jake la Furia');
+      const { id } = await service.create('Jake la Furia', 2);
 
       const concert = await service.getById(id);
       expect(concert).toMatchObject({ title: 'Jake la Furia' });
@@ -32,7 +32,7 @@ describe('Concerts component spec', () => {
   describe('rename', () => {
     let concertId: string;
     beforeEach(async () => {
-      const { id } = await service.create('Jake la Furia');
+      const { id } = await service.create('Jake la Furia', 2);
       concertId = id;
     });
 
@@ -41,6 +41,18 @@ describe('Concerts component spec', () => {
 
       const concert = await service.getById(concertId);
       expect(concert).toMatchObject({ title: 'Jake la Furia & Gue Pequeno' });
+    });
+  });
+
+  describe('reserveSeat', () => {
+    let concertId: string;
+    beforeEach(async () => {
+      const { id } = await service.create('Jake la Furia', 2);
+      concertId = id;
+    });
+
+    it('should not throw', async () => {
+      await service.reserveSeat(concertId, 1);
     });
   });
 });

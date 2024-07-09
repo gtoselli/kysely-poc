@@ -7,6 +7,7 @@ export type Timestamp = ColumnType<Date, Date | string, Date | string>;
 export type Concert = {
     id: string;
     title: string;
+    seats: string;
 };
 export type DB = {
     concerts: Concert;
