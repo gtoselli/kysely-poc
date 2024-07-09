@@ -1,8 +1,9 @@
 import { Kysely, Transaction } from 'kysely';
 import { Injectable } from '@nestjs/common';
-import { ConcertAggregate, SeatsEntity } from './domain/concert.aggregate';
+import { ConcertAggregate } from './domain/concert.aggregate';
 import { Concert, DB } from '../infra/database/types';
 import { InjectDatabase } from '../infra/database/di-tokens';
+import { ConcertSeatsEntity } from './domain/concert-seats.entity';
 
 export type TransactionalHook = (
   trx: Transaction<DB>,
@@ -58,7 +59,7 @@ export class ConcertsRepo {
       ? new ConcertAggregate(
           concertModel.id,
           concertModel.title,
-          new SeatsEntity(JSON.parse(concertModel.seats)),
+          new ConcertSeatsEntity(JSON.parse(concertModel.seats)),
         )
       : null;
   }

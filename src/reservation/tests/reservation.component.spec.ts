@@ -5,7 +5,7 @@ import { AvailableSeatsRepo } from '../available-seats.repo';
 import { DatabaseModule } from '../../infra/database/database.module';
 import { DI_DATABASE_URI_TOKEN } from '../../infra/database/di-tokens';
 
-describe('Concerts component spec', () => {
+describe('Reservation component spec', () => {
   let module: TestingModule;
   let service: ConcertsService;
 

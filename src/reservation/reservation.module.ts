@@ -6,4 +6,4 @@ import { AvailableSeatsRepo } from './available-seats.repo';
 @Module({
   providers: [ConcertsService, ConcertsRepo, AvailableSeatsRepo],
 })
-export class ConcertsModule {}
+export class ReservationModule {}
