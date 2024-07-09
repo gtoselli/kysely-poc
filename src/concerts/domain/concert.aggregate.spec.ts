@@ -47,5 +47,11 @@ describe('concert aggregate', () => {
 
       expect(concert.getAvailableSeats()).toBe(0);
     });
+
+    it('should throw an error if given seat is already reserved', () => {
+      concert.reserveSeat(1);
+
+      expect(() => concert.reserveSeat(1)).toThrow('SEAT_ALREADY_RESERVED');
+    });
   });
 });

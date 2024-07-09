@@ -19,6 +19,10 @@ export class SeatsEntity {
   }
 
   public reserveSeat(seatNumber: number) {
+    if (this.seats[seatNumber].occupied) {
+      throw new Error('SEAT_ALREADY_RESERVED');
+    }
+
     this.seats[seatNumber].occupied = true;
   }
 }
