@@ -1,19 +1,33 @@
 import { Database, InjectDatabase } from '../infra/database.module';
 import { Kysely } from 'kysely';
-import { nanoid } from 'nanoid';
 import { Concert } from './concerts.service';
+import { Injectable } from '@nestjs/common';
 
+@Injectable()
 export class ConcertsRepo {
   constructor(@InjectDatabase() private readonly database: Kysely<Database>) {}
 
-  public async addOne(concert: Concert) {
-    const id = nanoid();
-    await this.database
-      .insertInto('concerts')
-      .values({ ...concert })
-      .execute();
+  public async upsert(concert: Concert) {
+    await this.database.transaction().execute(async (trx) => {
+      const exists = await trx
+        .selectFrom('concerts')
+        .where('id', '=', concert.id)
+        .select('id')
+        .executeTakeFirst();
 
-    return { id };
+      if (exists) {
+        await trx
+          .updateTable('concerts')
+          .set({ ...concert })
+          .where('id', '=', concert.id)
+          .execute();
+        return;
+      }
+      await trx
+        .insertInto('concerts')
+        .values({ ...concert })
+        .execute();
+    });
   }
 
   public async getById(id: string) {

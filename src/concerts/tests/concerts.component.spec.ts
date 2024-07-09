@@ -26,5 +26,10 @@ describe('Concerts component spec', () => {
     const concert = await service.getById(id);
 
     expect(concert.title).toBe('Jake la Furia');
+
+    await service.updateOne(id, 'Jake la Furia 2.0');
+
+    const concertUpdated = await service.getById(id);
+    expect(concertUpdated.title).toBe('Jake la Furia 2.0');
   });
 });

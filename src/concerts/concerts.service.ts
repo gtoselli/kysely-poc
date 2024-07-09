@@ -14,9 +14,16 @@ export class ConcertsService {
   public async addOne(title: string) {
     const id = nanoid();
     const concert: Concert = { id, title };
-    await this.repo.addOne(concert);
+    await this.repo.upsert(concert);
 
     return { id };
+  }
+
+  public async updateOne(id: string, newTitle: string) {
+    const concert = await this.getById(id);
+    concert.title = newTitle;
+
+    await this.repo.upsert(concert);
   }
 
   public async getById(id: string) {
