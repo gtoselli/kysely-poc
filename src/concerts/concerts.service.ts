@@ -1,8 +1,8 @@
-import { nanoid } from 'nanoid';
 import { ConcertsRepo } from './concerts.repo';
 import { Injectable } from '@nestjs/common';
+import { ConcertAggregate } from './domain/concert.aggregate';
 
-export type Concert = {
+export type ConcertModel = {
   id: string;
   title: string;
 };
@@ -18,22 +18,21 @@ export class ConcertsService {
   }
 
   public async create(title: string) {
-    const id = nanoid();
-    const concert: Concert = { id, title };
-    await this.repo.upsert(concert);
+    const concert = ConcertAggregate.factory(title);
 
-    return { id };
+    await this.repo.saveAndSerialize(concert);
+    return { id: concert.id };
   }
 
   public async rename(id: string, newTitle: string) {
     const concert = await this.getById(id);
-    concert.title = newTitle;
 
-    await this.repo.upsert(concert);
+    concert.rename(newTitle);
+    await this.repo.saveAndSerialize(concert);
   }
 
   public async getById(id: string) {
-    const concert = await this.repo.getById(id);
+    const concert = await this.repo.getByIdAndDeserialize(id);
     if (!concert) throw new Error(`Concert ${id} not found`);
     return concert;
   }

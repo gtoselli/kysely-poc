@@ -1,7 +1,8 @@
 import { Database, InjectDatabase } from '../infra/database.module';
 import { Kysely, Transaction } from 'kysely';
-import { Concert } from './concerts.service';
+import { ConcertModel } from './concerts.service';
 import { Injectable } from '@nestjs/common';
+import { ConcertAggregate } from './domain/concert.aggregate';
 
 export type TransactionalHook = (trx: Transaction<Database>) => Promise<void>;
 
@@ -11,19 +12,21 @@ export class ConcertsRepo {
 
   constructor(@InjectDatabase() private readonly database: Kysely<Database>) {}
 
-  public async upsert(concert: Concert) {
+  public async saveAndSerialize(concert: ConcertAggregate) {
+    const concertModel: ConcertModel = { id: concert.id, title: concert.title };
+
     await this.database.transaction().execute(async (trx) => {
       const exists = await trx
         .selectFrom('concerts')
-        .where('id', '=', concert.id)
+        .where('id', '=', concertModel.id)
         .select('id')
         .executeTakeFirst();
 
       if (exists) {
         await trx
           .updateTable('concerts')
-          .set({ ...concert })
-          .where('id', '=', concert.id)
+          .set({ ...concertModel })
+          .where('id', '=', concertModel.id)
           .execute();
         await this.transactionalHook?.(trx);
         return;
@@ -31,20 +34,20 @@ export class ConcertsRepo {
 
       await trx
         .insertInto('concerts')
-        .values({ ...concert })
+        .values({ ...concertModel })
         .execute();
       await this.transactionalHook?.(trx);
     });
   }
 
-  public async getById(id: string) {
-    const results = await this.database
+  public async getByIdAndDeserialize(id: string) {
+    const result = await this.database
       .selectFrom('concerts')
       .where('id', '=', id)
       .selectAll()
-      .execute();
+      .executeTakeFirst();
 
-    return results.length ? (results[0] as Concert) : null;
+    return result ? new ConcertAggregate(result.id, result.title) : null;
   }
 
   public setTransactionalHook(hook: TransactionalHook) {
