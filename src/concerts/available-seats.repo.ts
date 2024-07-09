@@ -9,7 +9,7 @@ export class AvailableSeatsRepo {
 
   public async onConcertSaved(trx: Transaction<DB>, concert: Concert) {
     const seats = JSON.parse(concert.seats) as {
-      [key: string]: { occupied: boolean };
+      [key: string]: { reserved: boolean };
     };
 
     await trx
@@ -18,8 +18,8 @@ export class AvailableSeatsRepo {
       .execute();
 
     for (const seatNumber in seats) {
-      const occupied = seats[seatNumber].occupied;
-      if (occupied) continue;
+      const reserved = seats[seatNumber].reserved;
+      if (reserved) continue;
 
       await trx
         .insertInto('available_seats')

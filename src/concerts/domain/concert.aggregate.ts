@@ -1,12 +1,12 @@
 import { nanoid } from 'nanoid';
 
 export class SeatsEntity {
-  constructor(public seats: { [key: string]: { occupied: boolean } }) {}
+  constructor(public seats: { [key: string]: { reserved: boolean } }) {}
 
   static createWithCapacity(seatingCapacity: number) {
     const seats = {};
     Array.from({ length: seatingCapacity }).forEach((_, index) => {
-      seats[index + 1] = { occupied: false };
+      seats[index + 1] = { reserved: false };
     });
 
     return new SeatsEntity(seats);
@@ -14,16 +14,16 @@ export class SeatsEntity {
 
   public getAvailableSeats() {
     return Object.entries(this.seats)
-      .filter(([, seat]) => !seat.occupied)
+      .filter(([, seat]) => !seat.reserved)
       .map(([seatId]) => seatId);
   }
 
   public reserveSeat(seatNumber: number) {
-    if (this.seats[seatNumber].occupied) {
+    if (this.seats[seatNumber].reserved) {
       throw new Error('SEAT_ALREADY_RESERVED');
     }
 
-    this.seats[seatNumber].occupied = true;
+    this.seats[seatNumber].reserved = true;
   }
 }
 
