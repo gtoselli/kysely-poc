@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { ConcertsRepo } from '../concerts.repo';
 import { DatabaseModule } from '../../infra/database.module';
 import { ConcertsService } from '../concerts.service';
+import { AvailableSeatsRepo } from '../available-seats.repo';
 
 describe('Concerts component spec', () => {
   let module: TestingModule;
@@ -10,7 +11,7 @@ describe('Concerts component spec', () => {
   beforeAll(async () => {
     module = await Test.createTestingModule({
       imports: [DatabaseModule],
-      providers: [ConcertsService, ConcertsRepo],
+      providers: [ConcertsService, ConcertsRepo, AvailableSeatsRepo],
     }).compile();
 
     service = module.get(ConcertsService);
@@ -51,8 +52,13 @@ describe('Concerts component spec', () => {
       concertId = id;
     });
 
-    it('should not throw', async () => {
+    it('should not be listed in available seats', async () => {
       await service.reserveSeat(concertId, 1);
+
+      const availableSeats = await service.getAvailableSeats(concertId);
+      expect(availableSeats).toHaveLength(1);
+      expect(availableSeats.map((s) => s.seatNumber)).not.toContain(1);
+      expect(availableSeats.map((s) => s.seatNumber)).toContain(2);
     });
   });
 });

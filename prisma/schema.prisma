@@ -17,3 +17,11 @@ model Concert {
 
   @@map("concerts")
 }
+
+model AvailableSeat {
+  id         String @id
+  concertId  String
+  seatNumber Int
+
+  @@map("available_seats")
+}

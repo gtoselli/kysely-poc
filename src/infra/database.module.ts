@@ -1,14 +1,10 @@
 import { Global, Inject, Module } from '@nestjs/common';
 import { Kysely, SqliteDialect } from 'kysely';
 import * as SQLite from 'better-sqlite3';
-import { Concert } from '../../prisma/generated/types';
+import { DB } from '../../prisma/generated/types';
 
 const DATABASE_TOKEN = 'DATABASE';
 export const InjectDatabase = () => Inject(DATABASE_TOKEN);
-
-export interface Database {
-  concerts: Concert;
-}
 
 @Global()
 @Module({
@@ -21,7 +17,7 @@ export interface Database {
           database: new SQLite('dev.db'),
         });
 
-        return new Kysely<Database>({
+        return new Kysely<DB>({
           dialect,
           log(event) {
             if (event.level === 'query') {

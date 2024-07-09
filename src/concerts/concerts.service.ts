@@ -1,14 +1,16 @@
 import { ConcertsRepo } from './concerts.repo';
 import { Injectable } from '@nestjs/common';
 import { ConcertAggregate } from './domain/concert.aggregate';
+import { AvailableSeatsRepo } from './available-seats.repo';
 
 @Injectable()
 export class ConcertsService {
-  constructor(private readonly repo: ConcertsRepo) {
-    this.repo.setTransactionalHook(async (trx) => {
-      console.log('doing something transactional for 100ms');
-      await new Promise((resolve) => setTimeout(resolve, 100));
-      console.log('done doing something transactional for 1ms');
+  constructor(
+    private readonly repo: ConcertsRepo,
+    private readonly availableSeatsRepo: AvailableSeatsRepo,
+  ) {
+    this.repo.setTransactionalHook(async (trx, concertModel) => {
+      await this.availableSeatsRepo.onConcertSaved(trx, concertModel);
     });
   }
 
@@ -31,6 +33,10 @@ export class ConcertsService {
 
     concert.reserveSeat(seatNumber);
     await this.repo.saveAndSerialize(concert);
+  }
+
+  public async getAvailableSeats(id: string) {
+    return await this.availableSeatsRepo.getByConcertId(id);
   }
 
   public async getById(id: string) {

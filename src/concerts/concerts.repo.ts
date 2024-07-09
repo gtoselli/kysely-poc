@@ -1,16 +1,19 @@
-import { Database, InjectDatabase } from '../infra/database.module';
+import { InjectDatabase } from '../infra/database.module';
 import { Kysely, Transaction } from 'kysely';
 import { Injectable } from '@nestjs/common';
 import { ConcertAggregate, SeatsEntity } from './domain/concert.aggregate';
-import { Concert } from '../../prisma/generated/types';
+import { Concert, DB } from '../../prisma/generated/types';
 
-export type TransactionalHook = (trx: Transaction<Database>) => Promise<void>;
+export type TransactionalHook = (
+  trx: Transaction<DB>,
+  model: Concert,
+) => Promise<void>;
 
 @Injectable()
 export class ConcertsRepo {
   private transactionalHook?: TransactionalHook;
 
-  constructor(@InjectDatabase() private readonly database: Kysely<Database>) {}
+  constructor(@InjectDatabase() private readonly database: Kysely<DB>) {}
 
   public async saveAndSerialize(concert: ConcertAggregate) {
     const concertModel: Concert = {
@@ -32,7 +35,7 @@ export class ConcertsRepo {
           .set({ ...concertModel })
           .where('id', '=', concertModel.id)
           .execute();
-        await this.transactionalHook?.(trx);
+        await this.transactionalHook?.(trx, concertModel);
         return;
       }
 
@@ -40,7 +43,7 @@ export class ConcertsRepo {
         .insertInto('concerts')
         .values({ ...concertModel })
         .execute();
-      await this.transactionalHook?.(trx);
+      await this.transactionalHook?.(trx, concertModel);
     });
   }
 
