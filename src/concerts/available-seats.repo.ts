@@ -1,7 +1,7 @@
-import { InjectDatabase } from '../infra/database.module';
 import { Kysely, Transaction } from 'kysely';
 import { Injectable } from '@nestjs/common';
-import { Concert, DB } from '../../prisma/generated/types';
+import { Concert, DB } from '../infra/database/types';
+import { InjectDatabase } from '../infra/database/di-tokens';
 
 @Injectable()
 export class AvailableSeatsRepo {
