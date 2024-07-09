@@ -23,6 +23,11 @@ export interface Database {
 
         return new Kysely<Database>({
           dialect,
+          log(event) {
+            if (event.level === 'query') {
+              console.log(event.query.sql, event.query.parameters);
+            }
+          },
         });
       },
     },
