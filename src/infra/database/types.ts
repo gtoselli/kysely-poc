@@ -1,13 +1,14 @@
-export type AvailableSeat = {
-  id: string;
-  concertId: string;
-  seatNumber: number;
-};
-
 export type Concert = {
   id: string;
   title: string;
   seats: string;
+};
+
+export type AvailableSeat = {
+  id: string;
+  concertId: string;
+  seatNumber: number;
+  concertTitle: string;
 };
 
 export type DB = {

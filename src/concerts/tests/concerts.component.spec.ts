@@ -58,13 +58,25 @@ describe('Concerts component spec', () => {
       concertId = id;
     });
 
-    it('should not be listed in available seats', async () => {
+    it('reserved seat should not be listed in available seats', async () => {
       await service.reserveSeat(concertId, 1);
 
       const availableSeats = await service.getAvailableSeats(concertId);
       expect(availableSeats).toHaveLength(1);
       expect(availableSeats.map((s) => s.seatNumber)).not.toContain(1);
       expect(availableSeats.map((s) => s.seatNumber)).toContain(2);
+    });
+
+    it('available seats should be listed', async () => {
+      await service.reserveSeat(concertId, 1);
+
+      const availableSeats = await service.getAvailableSeats(concertId);
+      const availableSeat = availableSeats.find((s) => s.seatNumber === 2);
+
+      expect(availableSeat).toMatchObject({
+        seatNumber: 2,
+        concertTitle: 'Jake la Furia',
+      });
     });
   });
 });
