@@ -11,13 +11,13 @@ export type Concert = {
 export class ConcertsService {
   constructor(private readonly repo: ConcertsRepo) {
     this.repo.setTransactionalHook(async (trx) => {
-      console.log('doing something transactional for 1s');
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      console.log('done doing something transactional for 1s');
+      console.log('doing something transactional for 100ms');
+      await new Promise((resolve) => setTimeout(resolve, 100));
+      console.log('done doing something transactional for 1ms');
     });
   }
 
-  public async addOne(title: string) {
+  public async create(title: string) {
     const id = nanoid();
     const concert: Concert = { id, title };
     await this.repo.upsert(concert);
@@ -25,7 +25,7 @@ export class ConcertsService {
     return { id };
   }
 
-  public async updateOne(id: string, newTitle: string) {
+  public async rename(id: string, newTitle: string) {
     const concert = await this.getById(id);
     concert.title = newTitle;
 

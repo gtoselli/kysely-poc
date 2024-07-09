@@ -20,16 +20,27 @@ describe('Concerts component spec', () => {
     await module.close();
   });
 
-  it('add and get concert', async () => {
-    const { id } = await service.addOne('Jake la Furia');
+  describe('create', () => {
+    it('should create a concert', async () => {
+      const { id } = await service.create('Jake la Furia');
 
-    const concert = await service.getById(id);
+      const concert = await service.getById(id);
+      expect(concert).toMatchObject({ title: 'Jake la Furia' });
+    });
+  });
 
-    expect(concert.title).toBe('Jake la Furia');
+  describe('rename', () => {
+    let concertId: string;
+    beforeEach(async () => {
+      const { id } = await service.create('Jake la Furia');
+      concertId = id;
+    });
 
-    await service.updateOne(id, 'Jake la Furia 2.0');
+    it('should change the title of a concert', async () => {
+      await service.rename(concertId, 'Jake la Furia & Gue Pequeno');
 
-    const concertUpdated = await service.getById(id);
-    expect(concertUpdated.title).toBe('Jake la Furia 2.0');
+      const concert = await service.getById(concertId);
+      expect(concert).toMatchObject({ title: 'Jake la Furia & Gue Pequeno' });
+    });
   });
 });
