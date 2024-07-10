@@ -1,4 +1,3 @@
-import { nanoid } from 'nanoid';
 import { ConcertSeatsEntity } from './concert-seats.entity';
 
 export class ConcertAggregate {
@@ -7,9 +6,9 @@ export class ConcertAggregate {
     public seatsEntity: ConcertSeatsEntity,
   ) {}
 
-  static factory(seatingCapacity: number) {
+  static factory(eventId: string, seatingCapacity: number) {
     const seatsEntity = ConcertSeatsEntity.createWithCapacity(seatingCapacity);
-    return new ConcertAggregate(nanoid(), seatsEntity);
+    return new ConcertAggregate(eventId, seatsEntity);
   }
 
   public getAvailableSeats() {

@@ -29,7 +29,7 @@ describe('Reservation', () => {
 
   describe('create', () => {
     it('should create a concert', async () => {
-      const { id } = await service.create(2);
+      const { id } = await service.create('foo-event-id', 2);
 
       const concert = await service.getById(id);
       expect(concert).toMatchObject({ id });
@@ -39,7 +39,7 @@ describe('Reservation', () => {
   describe('reserveSeat', () => {
     let concertId: string;
     beforeEach(async () => {
-      const { id } = await service.create(2);
+      const { id } = await service.create('foo-event-id', 2);
       concertId = id;
     });
 

@@ -3,13 +3,13 @@ import { ConcertAggregate } from './concert.aggregate';
 describe('concert aggregate', () => {
   describe('factory', () => {
     it('should instantiate a new instance of concert aggregate', () => {
-      const concert = ConcertAggregate.factory(1);
+      const concert = ConcertAggregate.factory('foo-event-id', 1);
 
       expect(concert).toBeInstanceOf(ConcertAggregate);
     });
 
     it('all seats should be available', () => {
-      const concert = ConcertAggregate.factory(1);
+      const concert = ConcertAggregate.factory('foo-event-id', 1);
 
       expect(concert.getAvailableSeats()).toBe(1);
     });
@@ -19,7 +19,7 @@ describe('concert aggregate', () => {
     let concert: ConcertAggregate;
 
     beforeEach(() => {
-      concert = ConcertAggregate.factory(1);
+      concert = ConcertAggregate.factory('foo-event-id', 1);
     });
 
     it('should decrease available seats', () => {

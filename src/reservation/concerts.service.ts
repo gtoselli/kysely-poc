@@ -14,8 +14,8 @@ export class ConcertsService {
     });
   }
 
-  public async create(seatingCapacity: number) {
-    const concert = ConcertAggregate.factory(seatingCapacity);
+  public async create(eventId: string, seatingCapacity: number) {
+    const concert = ConcertAggregate.factory(eventId, seatingCapacity);
 
     await this.repo.saveAndSerialize(concert);
     return { id: concert.id };
