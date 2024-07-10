@@ -1,0 +1,2 @@
+pnpm exec cspell "**"
+pnpm exec lint-staged
