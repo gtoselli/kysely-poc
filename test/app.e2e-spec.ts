@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import { AppModule } from '../src/app.module';
-import { DI_DATABASE_URI_TOKEN } from '../src/@infra/database/di-tokens';
+import { DI_DATABASE_URI_TOKEN } from '../src/@infra';
 import { ReservationService } from '../src/reservation/reservation.service';
 import { ManagementService } from '../src/management/management.service';
 import { EmailChannelProvider } from '../src/communication/channels/email-channel.provider';

@@ -1,6 +1,5 @@
-import { InjectDatabase } from '../@infra/database/di-tokens';
+import { DB, InjectDatabase, ManagementConcert } from '../@infra';
 import { Kysely } from 'kysely';
-import { DB, ManagementConcert } from '../@infra/database/types';
 import { Injectable } from '@nestjs/common';
 
 @Injectable()

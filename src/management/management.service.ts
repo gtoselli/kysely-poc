@@ -1,5 +1,5 @@
 import { ConcertsRepo } from './concerts.repo';
-import { ManagementConcert } from '../@infra/database/types';
+import { ManagementConcert } from '../@infra';
 import { nanoid } from 'nanoid';
 import { Injectable } from '@nestjs/common';
 import { ReservationService } from '../reservation/reservation.service';

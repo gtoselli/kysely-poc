@@ -2,7 +2,7 @@ import { ConcertsRepo } from './concerts.repo';
 import { Injectable } from '@nestjs/common';
 import { ConcertAggregate } from './domain/concert.aggregate';
 import { AvailableSeatsRepo } from './available-seats.repo';
-import { ManagementConcert } from '../@infra/database/types';
+import { ManagementConcert } from '../@infra';
 import { CommunicationService } from '../communication/communication.service';
 
 @Injectable()
