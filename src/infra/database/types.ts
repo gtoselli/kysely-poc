@@ -11,7 +11,16 @@ export type AvailableSeat = {
   concertTitle: string;
 };
 
+export type Event = {
+  id: string;
+  title: string;
+  description: string;
+  date: string;
+  type: 'concert' | 'show';
+};
+
 export type DB = {
   available_seats: AvailableSeat;
   concerts: Concert;
+  events: Event;
 };
