@@ -7,7 +7,7 @@ import { Kysely } from 'kysely';
 import { DB } from '../../infra/database/types';
 import { ReservationService } from '../../reservation/reservation.service';
 
-describe('Event management', () => {
+describe('Management', () => {
   let module: TestingModule;
   let service: ManagementService;
 
