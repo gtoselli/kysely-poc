@@ -27,7 +27,7 @@ export class AvailableSeatsRepo {
           id: `${concert.id}__${seatNumber}`,
           concertId: concert.id,
           seatNumber: parseInt(seatNumber),
-          concertTitle: concert.title,
+          concertTitle: '',
         })
         .execute();
     }

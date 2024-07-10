@@ -19,7 +19,6 @@ export class ConcertsRepo {
   public async saveAndSerialize(concert: ConcertAggregate) {
     const concertModel: Concert = {
       id: concert.id,
-      title: concert.title,
       seats: JSON.stringify(concert.seatsEntity.seats),
     };
 
@@ -58,7 +57,6 @@ export class ConcertsRepo {
     return concertModel
       ? new ConcertAggregate(
           concertModel.id,
-          concertModel.title,
           new ConcertSeatsEntity(JSON.parse(concertModel.seats)),
         )
       : null;

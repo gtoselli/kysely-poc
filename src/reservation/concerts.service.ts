@@ -14,18 +14,11 @@ export class ConcertsService {
     });
   }
 
-  public async create(title: string, seatingCapacity: number) {
-    const concert = ConcertAggregate.factory(title, seatingCapacity);
+  public async create(seatingCapacity: number) {
+    const concert = ConcertAggregate.factory(seatingCapacity);
 
     await this.repo.saveAndSerialize(concert);
     return { id: concert.id };
-  }
-
-  public async rename(id: string, newTitle: string) {
-    const concert = await this.getById(id);
-
-    concert.rename(newTitle);
-    await this.repo.saveAndSerialize(concert);
   }
 
   public async reserveSeat(id: string, seatNumber: number) {
