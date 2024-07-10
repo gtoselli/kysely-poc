@@ -11,12 +11,7 @@ export class ManagementService {
     private readonly reservationService: ReservationService,
   ) {}
 
-  public async createConcertEvent(
-    title: string,
-    date: string,
-    description: string,
-    seatingCapacity: number,
-  ) {
+  public async createConcertEvent(title: string, date: string, description: string, seatingCapacity: number) {
     const event: Event = {
       id: nanoid(),
       title,
@@ -32,10 +27,7 @@ export class ManagementService {
     return { id: event.id };
   }
 
-  public async updateEvent(
-    id: string,
-    data: Omit<Partial<Event>, 'id' | 'date' | 'type'>,
-  ) {
+  public async updateEvent(id: string, data: Omit<Partial<Event>, 'id' | 'date' | 'type'>) {
     const event = await this.getEventById(id);
 
     if (data.title) event.title = data.title;

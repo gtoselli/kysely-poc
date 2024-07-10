@@ -49,8 +49,7 @@ describe('App (e2e)', () => {
       });
 
       it('all places must be available (in reservation BC)', async () => {
-        const availableSeats =
-          await reservationService.getAvailableSeats(eventId);
+        const availableSeats = await reservationService.getAvailableSeats(eventId);
 
         expect(availableSeats).toHaveLength(100);
       });
@@ -76,8 +75,7 @@ describe('App (e2e)', () => {
       });
 
       it('reserved seat must not be shown as available', async () => {
-        const availableSeats =
-          await reservationService.getAvailableSeats(eventId);
+        const availableSeats = await reservationService.getAvailableSeats(eventId);
 
         expect(availableSeats).toHaveLength(99);
       });

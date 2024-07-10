@@ -1,9 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { DatabaseModule } from '../../infra/database/database.module';
-import {
-  DI_DATABASE_TOKEN,
-  DI_DATABASE_URI_TOKEN,
-} from '../../infra/database/di-tokens';
+import { DI_DATABASE_TOKEN, DI_DATABASE_URI_TOKEN } from '../../infra/database/di-tokens';
 import { ManagementService } from '../management.service';
 import { EventsRepo } from '../events.repo';
 import { Kysely } from 'kysely';
@@ -21,11 +18,7 @@ describe('Event management', () => {
   beforeAll(async () => {
     module = await Test.createTestingModule({
       imports: [DatabaseModule],
-      providers: [
-        ManagementService,
-        EventsRepo,
-        { provide: ReservationService, useValue: ReservationServiceMock },
-      ],
+      providers: [ManagementService, EventsRepo, { provide: ReservationService, useValue: ReservationServiceMock }],
     })
       .overrideProvider(DI_DATABASE_URI_TOKEN)
       .useValue(':memory:')
@@ -47,46 +40,24 @@ describe('Event management', () => {
 
   describe('createConcertEvent', () => {
     it('should create a event with type concert', async () => {
-      const { id } = await service.createConcertEvent(
-        'Salmo',
-        '2024-07-01',
-        'Hellraisers',
-        100,
-      );
+      const { id } = await service.createConcertEvent('Salmo', '2024-07-01', 'Hellraisers', 100);
 
       const event = await service.getEventById(id);
       expect(event.type).toBe('concert');
     });
 
     it('should notify concert creation to reservation BC', async () => {
-      const { id } = await service.createConcertEvent(
-        'Salmo',
-        '2024-07-01',
-        'Hellraisers',
-        100,
-      );
+      const { id } = await service.createConcertEvent('Salmo', '2024-07-01', 'Hellraisers', 100);
 
       const event = await service.getEventById(id);
-      expect(ReservationServiceMock.onConcertEventCreated).toBeCalledWith(
-        event,
-      );
+      expect(ReservationServiceMock.onConcertEventCreated).toBeCalledWith(event);
     });
   });
 
   describe('listEvents', () => {
     it('should list all events', async () => {
-      await service.createConcertEvent(
-        'Salmo',
-        '2024-07-01',
-        'Hellraisers',
-        100,
-      );
-      await service.createConcertEvent(
-        'Jovanotti',
-        '2024-07-02',
-        'PalaJova',
-        100,
-      );
+      await service.createConcertEvent('Salmo', '2024-07-01', 'Hellraisers', 100);
+      await service.createConcertEvent('Jovanotti', '2024-07-02', 'PalaJova', 100);
 
       const events = await service.listEvents();
 
@@ -105,12 +76,7 @@ describe('Event management', () => {
     let eventId: string;
 
     beforeEach(async () => {
-      const { id } = await service.createConcertEvent(
-        'Salmo',
-        '2024-07-01',
-        'Hellraisers',
-        100,
-      );
+      const { id } = await service.createConcertEvent('Salmo', '2024-07-01', 'Hellraisers', 100);
       eventId = id;
     });
 

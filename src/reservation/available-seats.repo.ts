@@ -12,10 +12,7 @@ export class AvailableSeatsRepo {
       [key: string]: { reserved: boolean };
     };
 
-    await trx
-      .deleteFrom('available_seats')
-      .where('concertId', '=', concert.id)
-      .execute();
+    await trx.deleteFrom('available_seats').where('concertId', '=', concert.id).execute();
 
     for (const seatNumber in seats) {
       const reserved = seats[seatNumber].reserved;
@@ -34,10 +31,6 @@ export class AvailableSeatsRepo {
   }
 
   public async getByConcertId(id: string) {
-    return await this.database
-      .selectFrom('available_seats')
-      .where('concertId', '=', id)
-      .selectAll()
-      .execute();
+    return await this.database.selectFrom('available_seats').where('concertId', '=', id).selectAll().execute();
   }
 }

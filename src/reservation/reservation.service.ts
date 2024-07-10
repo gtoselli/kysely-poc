@@ -40,8 +40,7 @@ export class ReservationService {
   }
 
   async onConcertEventCreated(event: Event) {
-    if (!event.seatingCapacity)
-      throw new Error('Seating capacity must be provided');
+    if (!event.seatingCapacity) throw new Error('Seating capacity must be provided');
 
     await this.create(event.id, event.seatingCapacity);
   }

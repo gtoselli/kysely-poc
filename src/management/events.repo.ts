@@ -12,19 +12,11 @@ export class EventsRepo {
   }
 
   public async update(event: Event) {
-    await this.database
-      .updateTable('events')
-      .set(event)
-      .where('id', '=', event.id)
-      .execute();
+    await this.database.updateTable('events').set(event).where('id', '=', event.id).execute();
   }
 
   public async getById(id: string) {
-    const event = await this.database
-      .selectFrom('events')
-      .selectAll()
-      .where('id', '=', id)
-      .executeTakeFirst();
+    const event = await this.database.selectFrom('events').selectAll().where('id', '=', id).executeTakeFirst();
 
     return event ? event : null;
   }

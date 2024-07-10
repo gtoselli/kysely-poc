@@ -5,10 +5,7 @@ import { Concert, DB } from '../infra/database/types';
 import { InjectDatabase } from '../infra/database/di-tokens';
 import { ConcertSeatsEntity } from './domain/concert-seats.entity';
 
-export type TransactionalHook = (
-  trx: Transaction<DB>,
-  model: Concert,
-) => Promise<void>;
+export type TransactionalHook = (trx: Transaction<DB>, model: Concert) => Promise<void>;
 
 @Injectable()
 export class ConcertsRepo {
@@ -23,11 +20,7 @@ export class ConcertsRepo {
     };
 
     await this.database.transaction().execute(async (trx) => {
-      const exists = await trx
-        .selectFrom('concerts')
-        .where('id', '=', concertModel.id)
-        .select('id')
-        .executeTakeFirst();
+      const exists = await trx.selectFrom('concerts').where('id', '=', concertModel.id).select('id').executeTakeFirst();
 
       if (exists) {
         await trx
@@ -48,17 +41,10 @@ export class ConcertsRepo {
   }
 
   public async getByIdAndDeserialize(id: string) {
-    const concertModel = await this.database
-      .selectFrom('concerts')
-      .where('id', '=', id)
-      .selectAll()
-      .executeTakeFirst();
+    const concertModel = await this.database.selectFrom('concerts').where('id', '=', id).selectAll().executeTakeFirst();
 
     return concertModel
-      ? new ConcertAggregate(
-          concertModel.id,
-          new ConcertSeatsEntity(JSON.parse(concertModel.seats)),
-        )
+      ? new ConcertAggregate(concertModel.id, new ConcertSeatsEntity(JSON.parse(concertModel.seats)))
       : null;
   }
 

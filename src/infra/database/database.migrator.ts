@@ -25,9 +25,7 @@ export class DatabaseMigrator implements OnModuleInit {
 
     results?.forEach(({ status, migrationName }) => {
       if (status === 'Success') {
-        this.logger.log(
-          `migration "${migrationName}" was executed successfully`,
-        );
+        this.logger.log(`migration "${migrationName}" was executed successfully`);
       } else if (status === 'Error') {
         this.logger.error(`failed to execute migration "${migrationName}"`);
       }
