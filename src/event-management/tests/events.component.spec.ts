@@ -8,15 +8,24 @@ import { EventsService } from '../events.service';
 import { EventsRepo } from '../events.repo';
 import { Kysely } from 'kysely';
 import { DB } from '../../infra/database/types';
+import { ConcertsService } from '../../reservation/concerts.service';
 
 describe('Event management', () => {
   let module: TestingModule;
   let service: EventsService;
 
+  const ReservationBCMock = {
+    onConcertEventCreated: jest.fn(),
+  };
+
   beforeAll(async () => {
     module = await Test.createTestingModule({
       imports: [DatabaseModule],
-      providers: [EventsService, EventsRepo],
+      providers: [
+        EventsService,
+        EventsRepo,
+        { provide: ConcertsService, useValue: ReservationBCMock },
+      ],
     })
       .overrideProvider(DI_DATABASE_URI_TOKEN)
       .useValue(':memory:')
@@ -46,6 +55,17 @@ describe('Event management', () => {
 
       const event = await service.getEventById(id);
       expect(event.type).toBe('concert');
+    });
+
+    it('should notify concert creation to reservation BC', async () => {
+      const { id } = await service.createConcertEvent(
+        'Salmo',
+        '2024-07-01',
+        'Hellraisers',
+      );
+
+      const event = await service.getEventById(id);
+      expect(ReservationBCMock.onConcertEventCreated).toBeCalledWith(event);
     });
   });
 

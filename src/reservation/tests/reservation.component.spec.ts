@@ -4,6 +4,7 @@ import { ConcertsService } from '../concerts.service';
 import { AvailableSeatsRepo } from '../available-seats.repo';
 import { DatabaseModule } from '../../infra/database/database.module';
 import { DI_DATABASE_URI_TOKEN } from '../../infra/database/di-tokens';
+import { Event } from '../../infra/database/types';
 
 describe('Reservation', () => {
   let module: TestingModule;
@@ -62,6 +63,23 @@ describe('Reservation', () => {
         seatNumber: 2,
         concertTitle: '',
       });
+    });
+  });
+
+  describe('on ConcertEventCreated', () => {
+    const event: Event = {
+      id: 'foo-event-id',
+      title: 'Salmo',
+      date: '2024-07-01',
+      description: 'Hellraisers',
+      type: 'concert',
+    };
+
+    it('should create a concert with 10 seats', async () => {
+      await service.onConcertEventCreated(event);
+
+      const concert = await service.getById(event.id);
+      expect(concert.getAvailableSeats()).toBe(10);
     });
   });
 });

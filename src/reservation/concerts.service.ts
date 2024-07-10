@@ -2,6 +2,7 @@ import { ConcertsRepo } from './concerts.repo';
 import { Injectable } from '@nestjs/common';
 import { ConcertAggregate } from './domain/concert.aggregate';
 import { AvailableSeatsRepo } from './available-seats.repo';
+import { Event } from '../infra/database/types';
 
 @Injectable()
 export class ConcertsService {
@@ -36,5 +37,9 @@ export class ConcertsService {
     const concert = await this.repo.getByIdAndDeserialize(id);
     if (!concert) throw new Error(`Concert ${id} not found`);
     return concert;
+  }
+
+  async onConcertEventCreated(event: Event) {
+    await this.create(event.id, 10);
   }
 }
