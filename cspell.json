@@ -1,0 +1,23 @@
+{
+  "$schema": "https://raw.githubusercontent.com/streetsidesoftware/cspell/main/cspell.schema.json",
+  "version": "0.2",
+  "ignorePaths": ["node_modules", "dist", "pnpm-lock.yaml"],
+  "words": [
+    "nestjs",
+    "kysely",
+    "centralise",
+    "salmo",
+    "hellraisers",
+    "jovanotti",
+    "palajovanotti",
+    "maurizio",
+    "pisciottu",
+    "CONCERTOSE",
+    "pala",
+    "jova",
+    "marracash",
+    "novembre",
+    "loro",
+    "altri"
+  ]
+}
