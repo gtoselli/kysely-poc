@@ -4,7 +4,7 @@ import {
   DI_DATABASE_TOKEN,
   DI_DATABASE_URI_TOKEN,
 } from '../../infra/database/di-tokens';
-import { EventManagementService } from '../event-management.service';
+import { ManagementService } from '../management.service';
 import { EventsRepo } from '../events.repo';
 import { Kysely } from 'kysely';
 import { DB } from '../../infra/database/types';
@@ -12,7 +12,7 @@ import { ReservationService } from '../../reservation/reservation.service';
 
 describe('Event management', () => {
   let module: TestingModule;
-  let service: EventManagementService;
+  let service: ManagementService;
 
   const ReservationServiceMock = {
     onConcertEventCreated: jest.fn(),
@@ -22,7 +22,7 @@ describe('Event management', () => {
     module = await Test.createTestingModule({
       imports: [DatabaseModule],
       providers: [
-        EventManagementService,
+        ManagementService,
         EventsRepo,
         { provide: ReservationService, useValue: ReservationServiceMock },
       ],
@@ -33,7 +33,7 @@ describe('Event management', () => {
 
     await module.init();
 
-    service = module.get(EventManagementService);
+    service = module.get(ManagementService);
   });
 
   afterAll(async () => {

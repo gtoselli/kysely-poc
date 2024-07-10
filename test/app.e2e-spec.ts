@@ -1,13 +1,13 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import { AppModule } from '../src/app.module';
-import { EventManagementService } from '../src/event-management/event-management.service';
 import { DI_DATABASE_URI_TOKEN } from '../src/infra/database/di-tokens';
 import { ReservationService } from '../src/reservation/reservation.service';
+import { ManagementService } from '../src/management/management.service';
 
 describe('App (e2e)', () => {
   let app: INestApplication;
-  let eventManagementService: EventManagementService;
+  let managementService: ManagementService;
   let reservationService: ReservationService;
 
   beforeEach(async () => {
@@ -21,7 +21,7 @@ describe('App (e2e)', () => {
     app = moduleFixture.createNestApplication();
     await app.init();
 
-    eventManagementService = app.get(EventManagementService);
+    managementService = app.get(ManagementService);
     reservationService = app.get(ReservationService);
   });
 
@@ -30,7 +30,7 @@ describe('App (e2e)', () => {
       let eventId: string;
 
       beforeEach(async () => {
-        const { id } = await eventManagementService.createConcertEvent(
+        const { id } = await managementService.createConcertEvent(
           'Marracash',
           '20 novembre 2024',
           'Noi, Loro, Gli Altri Tour',
@@ -40,7 +40,7 @@ describe('App (e2e)', () => {
       });
 
       it('should be listed in events list (in event-management BC)', async () => {
-        const events = await eventManagementService.listEvents();
+        const events = await managementService.listEvents();
 
         expect(events).toHaveLength(1);
         expect(events[0]).toMatchObject({
@@ -61,7 +61,7 @@ describe('App (e2e)', () => {
     let eventId: string;
 
     beforeEach(async () => {
-      const { id } = await eventManagementService.createConcertEvent(
+      const { id } = await managementService.createConcertEvent(
         'Marracash',
         '20 novembre 2024',
         'Noi, Loro, Gli Altri Tour',
