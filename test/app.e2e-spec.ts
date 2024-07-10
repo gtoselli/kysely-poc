@@ -55,4 +55,30 @@ describe('App (e2e)', () => {
       });
     });
   });
+
+  describe('Given a scheduled concert event', () => {
+    let eventId: string;
+
+    beforeEach(async () => {
+      const { id } = await eventsService.createConcertEvent(
+        'Marracash',
+        '20 novembre 2024',
+        'Noi, Loro, Gli Altri Tour',
+        100,
+      );
+      eventId = id;
+    });
+
+    describe('When reserve seat', () => {
+      beforeEach(async () => {
+        await concertsService.reserveSeat(eventId, 1);
+      });
+
+      it('reserved seat must not be shown as available', async () => {
+        const availableSeats = await concertsService.getAvailableSeats(eventId);
+
+        expect(availableSeats).toHaveLength(99);
+      });
+    });
+  });
 });
