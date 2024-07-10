@@ -23,7 +23,9 @@ import { DI_DATABASE_TOKEN, DI_DATABASE_URI_TOKEN } from './di-tokens';
           dialect,
           log(event) {
             if (event.level === 'query') {
-              logger.debug(`${event.query.sql}  ${event.query.parameters}`);
+              logger.debug(
+                `Query ${event.query.sql} ${event.query.parameters} executed in ${event.queryDurationMillis.toFixed(2)}ms`,
+              );
             } else if (event.level === 'error') {
               logger.error(event.error);
             }

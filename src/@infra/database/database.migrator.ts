@@ -25,7 +25,7 @@ export class DatabaseMigrator implements OnModuleInit {
 
     results?.forEach(({ status, migrationName }) => {
       if (status === 'Success') {
-        this.logger.log(`migration "${migrationName}" was executed successfully`);
+        this.logger.log(`Migration "${migrationName}" was executed successfully`);
       } else if (status === 'Error') {
         this.logger.error(`failed to execute migration "${migrationName}"`);
       }
@@ -33,7 +33,11 @@ export class DatabaseMigrator implements OnModuleInit {
 
     if (error) {
       this.logger.error(error);
-      throw new Error('failed to migrate database');
+      throw new Error('Failed to migrate database');
+    }
+
+    if (results?.length === 0) {
+      this.logger.log('Database is up to date with the latest migration \u{1F680}');
     }
   }
 }
