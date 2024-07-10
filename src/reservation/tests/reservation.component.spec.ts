@@ -5,15 +5,25 @@ import { AvailableSeatsRepo } from '../available-seats.repo';
 import { DatabaseModule } from '../../infra/database/database.module';
 import { DI_DATABASE_URI_TOKEN } from '../../infra/database/di-tokens';
 import { Event } from '../../infra/database/types';
+import { CommunicationService } from '../../communication/communication.service';
 
 describe('Reservation', () => {
   let module: TestingModule;
   let service: ReservationService;
 
+  const CommunicationServiceMock = {
+    onConcertEventSeatReserved: jest.fn(),
+  };
+
   beforeAll(async () => {
     module = await Test.createTestingModule({
       imports: [DatabaseModule],
-      providers: [ReservationService, ConcertsRepo, AvailableSeatsRepo],
+      providers: [
+        ReservationService,
+        ConcertsRepo,
+        AvailableSeatsRepo,
+        { provide: CommunicationService, useValue: CommunicationServiceMock },
+      ],
     })
       .overrideProvider(DI_DATABASE_URI_TOKEN)
       .useValue(':memory:')
@@ -63,6 +73,12 @@ describe('Reservation', () => {
         seatNumber: 2,
         concertTitle: '',
       });
+    });
+
+    it('should notify seat reserved to communication BC', async () => {
+      await service.reserveSeat(concertId, 1);
+
+      expect(CommunicationServiceMock.onConcertEventSeatReserved).toHaveBeenCalledWith(concertId, 1);
     });
   });
 

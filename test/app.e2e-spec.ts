@@ -4,11 +4,14 @@ import { AppModule } from '../src/app.module';
 import { DI_DATABASE_URI_TOKEN } from '../src/infra/database/di-tokens';
 import { ReservationService } from '../src/reservation/reservation.service';
 import { ManagementService } from '../src/management/management.service';
+import { EmailChannelProvider } from '../src/communication/channels/email-channel.provider';
 
 describe('App (e2e)', () => {
   let app: INestApplication;
   let managementService: ManagementService;
   let reservationService: ReservationService;
+
+  const EmailChannelProviderMock = { send: jest.fn() };
 
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -16,6 +19,8 @@ describe('App (e2e)', () => {
     })
       .overrideProvider(DI_DATABASE_URI_TOKEN)
       .useValue(':memory:')
+      .overrideProvider(EmailChannelProvider)
+      .useValue(EmailChannelProviderMock)
       .compile();
 
     app = moduleFixture.createNestApplication();
@@ -78,6 +83,14 @@ describe('App (e2e)', () => {
         const availableSeats = await reservationService.getAvailableSeats(eventId);
 
         expect(availableSeats).toHaveLength(99);
+      });
+
+      it('should send confirmation email', () => {
+        expect(EmailChannelProviderMock.send).toHaveBeenCalledWith(
+          'toselli.gabriele@gmail.com',
+          '[CONCERTOSE] Reservation Confirmation',
+          expect.stringContaining('You have successfully reserved a seat for the event Concert Event'),
+        );
       });
     });
   });

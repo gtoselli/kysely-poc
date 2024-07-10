@@ -12,4 +12,9 @@ export class CommunicationService {
       `You have successfully reserved a seat for the event ${eventTitle}`,
     );
   }
+
+  async onConcertEventSeatReserved(id: string, seatNumber: number) {
+    //TODO add real event name
+    await this.sendReservationConfirmation(`Concert Event ${id} - Seat ${seatNumber}`);
+  }
 }

@@ -3,12 +3,14 @@ import { Injectable } from '@nestjs/common';
 import { ConcertAggregate } from './domain/concert.aggregate';
 import { AvailableSeatsRepo } from './available-seats.repo';
 import { Event } from '../infra/database/types';
+import { CommunicationService } from '../communication/communication.service';
 
 @Injectable()
 export class ReservationService {
   constructor(
     private readonly repo: ConcertsRepo,
     private readonly availableSeatsRepo: AvailableSeatsRepo,
+    private readonly communicationService: CommunicationService,
   ) {
     this.repo.setTransactionalHook(async (trx, concertModel) => {
       await this.availableSeatsRepo.onConcertSaved(trx, concertModel);
@@ -27,6 +29,8 @@ export class ReservationService {
 
     concert.reserveSeat(seatNumber);
     await this.repo.saveAndSerialize(concert);
+
+    await this.communicationService.onConcertEventSeatReserved(concert.id, seatNumber);
   }
 
   public async getAvailableSeats(id: string) {
