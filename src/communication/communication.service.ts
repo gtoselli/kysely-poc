@@ -5,16 +5,16 @@ import { EmailChannelProvider } from './channels/email-channel.provider';
 export class CommunicationService {
   constructor(private readonly emailChannelProvider: EmailChannelProvider) {}
 
-  public async sendReservationConfirmation(eventTitle: string) {
+  public async sendReservationConfirmation(concertTitle: string) {
     await this.emailChannelProvider.send(
       'toselli.gabriele@gmail.com',
       '[CONCERTOSE] Reservation Confirmation',
-      `You have successfully reserved a seat for the event ${eventTitle}`,
+      `You have successfully reserved a seat for the concert ${concertTitle}`,
     );
   }
 
-  async onConcertEventSeatReserved(id: string, seatNumber: number) {
-    //TODO add real event name
-    await this.sendReservationConfirmation(`Concert Event ${id} - Seat ${seatNumber}`);
+  async onConcertSeatReserved(id: string, seatNumber: number) {
+    //TODO add real concert name
+    await this.sendReservationConfirmation(`Concert ${id} - Seat ${seatNumber}`);
   }
 }

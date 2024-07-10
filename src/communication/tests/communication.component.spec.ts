@@ -32,7 +32,7 @@ describe('Communication', () => {
       expect(EmailChannelProviderMock.send).toBeCalledWith(
         'toselli.gabriele@gmail.com',
         '[CONCERTOSE] Reservation Confirmation',
-        'You have successfully reserved a seat for the event Tailor Swift',
+        'You have successfully reserved a seat for the concert Tailor Swift',
       );
     });
   });

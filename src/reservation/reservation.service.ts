@@ -2,7 +2,7 @@ import { ConcertsRepo } from './concerts.repo';
 import { Injectable } from '@nestjs/common';
 import { ConcertAggregate } from './domain/concert.aggregate';
 import { AvailableSeatsRepo } from './available-seats.repo';
-import { Event } from '../infra/database/types';
+import { ManagementConcert } from '../infra/database/types';
 import { CommunicationService } from '../communication/communication.service';
 
 @Injectable()
@@ -17,8 +17,8 @@ export class ReservationService {
     });
   }
 
-  public async create(eventId: string, seatingCapacity: number) {
-    const concert = ConcertAggregate.factory(eventId, seatingCapacity);
+  public async create(concertId: string, seatingCapacity: number) {
+    const concert = ConcertAggregate.factory(concertId, seatingCapacity);
 
     await this.repo.saveAndSerialize(concert);
     return { id: concert.id };
@@ -30,7 +30,7 @@ export class ReservationService {
     concert.reserveSeat(seatNumber);
     await this.repo.saveAndSerialize(concert);
 
-    await this.communicationService.onConcertEventSeatReserved(concert.id, seatNumber);
+    await this.communicationService.onConcertSeatReserved(concert.id, seatNumber);
   }
 
   public async getAvailableSeats(id: string) {
@@ -43,9 +43,9 @@ export class ReservationService {
     return concert;
   }
 
-  async onConcertEventCreated(event: Event) {
-    if (!event.seatingCapacity) throw new Error('Seating capacity must be provided');
+  async onConcertCreated(concert: ManagementConcert) {
+    if (!concert.seatingCapacity) throw new Error('Seating capacity must be provided');
 
-    await this.create(event.id, event.seatingCapacity);
+    await this.create(concert.id, concert.seatingCapacity);
   }
 }

@@ -4,15 +4,15 @@ import { ReservationService } from '../reservation.service';
 import { AvailableSeatsRepo } from '../available-seats.repo';
 import { DatabaseModule } from '../../infra/database/database.module';
 import { DI_DATABASE_URI_TOKEN } from '../../infra/database/di-tokens';
-import { Event } from '../../infra/database/types';
 import { CommunicationService } from '../../communication/communication.service';
+import { ManagementConcert } from '../../infra/database/types';
 
 describe('Reservation', () => {
   let module: TestingModule;
   let service: ReservationService;
 
   const CommunicationServiceMock = {
-    onConcertEventSeatReserved: jest.fn(),
+    onConcertSeatReserved: jest.fn(),
   };
 
   beforeAll(async () => {
@@ -40,7 +40,7 @@ describe('Reservation', () => {
 
   describe('create', () => {
     it('should create a concert', async () => {
-      const { id } = await service.create('foo-event-id', 2);
+      const { id } = await service.create('foo-concert-id', 2);
 
       const concert = await service.getById(id);
       expect(concert).toMatchObject({ id });
@@ -50,7 +50,7 @@ describe('Reservation', () => {
   describe('reserveSeat', () => {
     let concertId: string;
     beforeEach(async () => {
-      const { id } = await service.create('foo-event-id', 2);
+      const { id } = await service.create('foo-concert-id', 2);
       concertId = id;
     });
 
@@ -78,25 +78,24 @@ describe('Reservation', () => {
     it('should notify seat reserved to communication BC', async () => {
       await service.reserveSeat(concertId, 1);
 
-      expect(CommunicationServiceMock.onConcertEventSeatReserved).toHaveBeenCalledWith(concertId, 1);
+      expect(CommunicationServiceMock.onConcertSeatReserved).toHaveBeenCalledWith(concertId, 1);
     });
   });
 
-  describe('on ConcertEventCreated', () => {
-    const event: Event = {
-      id: 'foo-event-id',
+  describe('on ConcertCreated', () => {
+    const concert: ManagementConcert = {
+      id: 'foo-concert-id',
       title: 'Salmo',
       date: '2024-07-01',
       description: 'Hellraisers',
-      type: 'concert',
       seatingCapacity: 500,
     };
 
     it('should create a concert with 10 seats', async () => {
-      await service.onConcertEventCreated(event);
+      await service.onConcertCreated(concert);
 
-      const concert = await service.getById(event.id);
-      expect(concert.getAvailableSeats()).toBe(500);
+      const concertAggregate = await service.getById(concert.id);
+      expect(concertAggregate.getAvailableSeats()).toBe(500);
     });
   });
 });

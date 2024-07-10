@@ -30,57 +30,57 @@ describe('App (e2e)', () => {
     reservationService = app.get(ReservationService);
   });
 
-  describe('Given no events', () => {
-    describe('When create a concert event', () => {
-      let eventId: string;
+  describe('Given no concerts', () => {
+    describe('When create a concert', () => {
+      let concertId: string;
 
       beforeEach(async () => {
-        const { id } = await managementService.createConcertEvent(
+        const { id } = await managementService.createConcert(
           'Marracash',
           '20 novembre 2024',
           'Noi, Loro, Gli Altri Tour',
           100,
         );
-        eventId = id;
+        concertId = id;
       });
 
-      it('should be listed in events list (in event-management BC)', async () => {
-        const events = await managementService.listEvents();
+      it('should be listed in concerts list (in management BC)', async () => {
+        const concerts = await managementService.listConcerts();
 
-        expect(events).toHaveLength(1);
-        expect(events[0]).toMatchObject({
+        expect(concerts).toHaveLength(1);
+        expect(concerts[0]).toMatchObject({
           title: 'Marracash',
         });
       });
 
       it('all places must be available (in reservation BC)', async () => {
-        const availableSeats = await reservationService.getAvailableSeats(eventId);
+        const availableSeats = await reservationService.getAvailableSeats(concertId);
 
         expect(availableSeats).toHaveLength(100);
       });
     });
   });
 
-  describe('Given a scheduled concert event', () => {
-    let eventId: string;
+  describe('Given a scheduled concert', () => {
+    let concertId: string;
 
     beforeEach(async () => {
-      const { id } = await managementService.createConcertEvent(
+      const { id } = await managementService.createConcert(
         'Marracash',
         '20 novembre 2024',
         'Noi, Loro, Gli Altri Tour',
         100,
       );
-      eventId = id;
+      concertId = id;
     });
 
     describe('When reserve seat', () => {
       beforeEach(async () => {
-        await reservationService.reserveSeat(eventId, 1);
+        await reservationService.reserveSeat(concertId, 1);
       });
 
       it('reserved seat must not be shown as available', async () => {
-        const availableSeats = await reservationService.getAvailableSeats(eventId);
+        const availableSeats = await reservationService.getAvailableSeats(concertId);
 
         expect(availableSeats).toHaveLength(99);
       });
@@ -89,7 +89,7 @@ describe('App (e2e)', () => {
         expect(EmailChannelProviderMock.send).toHaveBeenCalledWith(
           'toselli.gabriele@gmail.com',
           '[CONCERTOSE] Reservation Confirmation',
-          expect.stringContaining('You have successfully reserved a seat for the event Concert Event'),
+          expect.stringContaining('You have successfully reserved a seat for the concert'),
         );
       });
     });

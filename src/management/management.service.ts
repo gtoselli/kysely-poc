@@ -1,5 +1,5 @@
-import { EventsRepo } from './events.repo';
-import { Event } from '../infra/database/types';
+import { ConcertsRepo } from './concerts.repo';
+import { ManagementConcert } from '../infra/database/types';
 import { nanoid } from 'nanoid';
 import { Injectable } from '@nestjs/common';
 import { ReservationService } from '../reservation/reservation.service';
@@ -7,44 +7,43 @@ import { ReservationService } from '../reservation/reservation.service';
 @Injectable()
 export class ManagementService {
   constructor(
-    private readonly eventsRepo: EventsRepo,
+    private readonly concertsRepo: ConcertsRepo,
     private readonly reservationService: ReservationService,
   ) {}
 
-  public async createConcertEvent(title: string, date: string, description: string, seatingCapacity: number) {
-    const event: Event = {
+  public async createConcert(title: string, date: string, description: string, seatingCapacity: number) {
+    const concert: ManagementConcert = {
       id: nanoid(),
       title,
       date,
       description,
-      type: 'concert',
       seatingCapacity,
     };
 
-    await this.eventsRepo.create(event);
+    await this.concertsRepo.create(concert);
 
-    await this.reservationService.onConcertEventCreated(event);
-    return { id: event.id };
+    await this.reservationService.onConcertCreated(concert);
+    return { id: concert.id };
   }
 
-  public async updateEvent(id: string, data: Omit<Partial<Event>, 'id' | 'date' | 'type'>) {
-    const event = await this.getEventById(id);
+  public async updateConcert(id: string, data: Omit<Partial<ManagementConcert>, 'id' | 'date' | 'type'>) {
+    const concert = await this.getConcertById(id);
 
-    if (data.title) event.title = data.title;
-    if (data.description) event.description = data.description;
-    if (data.seatingCapacity) event.seatingCapacity = data.seatingCapacity;
+    if (data.title) concert.title = data.title;
+    if (data.description) concert.description = data.description;
+    if (data.seatingCapacity) concert.seatingCapacity = data.seatingCapacity;
 
-    await this.eventsRepo.update(event);
-    return { id: event.id };
+    await this.concertsRepo.update(concert);
+    return { id: concert.id };
   }
 
-  public async listEvents() {
-    return await this.eventsRepo.list();
+  public async listConcerts() {
+    return await this.concertsRepo.list();
   }
 
-  public async getEventById(id: string) {
-    const event = await this.eventsRepo.getById(id);
-    if (!event) throw new Error('Event not found');
-    return event;
+  public async getConcertById(id: string) {
+    const concert = await this.concertsRepo.getById(id);
+    if (!concert) throw new Error('Concert not found');
+    return concert;
   }
 }

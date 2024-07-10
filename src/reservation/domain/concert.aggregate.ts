@@ -6,9 +6,9 @@ export class ConcertAggregate {
     public seatsEntity: ConcertSeatsEntity,
   ) {}
 
-  static factory(eventId: string, seatingCapacity: number) {
+  static factory(concertId: string, seatingCapacity: number) {
     const seatsEntity = ConcertSeatsEntity.createWithCapacity(seatingCapacity);
-    return new ConcertAggregate(eventId, seatsEntity);
+    return new ConcertAggregate(concertId, seatsEntity);
   }
 
   public getAvailableSeats() {

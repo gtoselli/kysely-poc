@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { DatabaseModule } from '../../infra/database/database.module';
 import { DI_DATABASE_TOKEN, DI_DATABASE_URI_TOKEN } from '../../infra/database/di-tokens';
 import { ManagementService } from '../management.service';
-import { EventsRepo } from '../events.repo';
+import { ConcertsRepo } from '../concerts.repo';
 import { Kysely } from 'kysely';
 import { DB } from '../../infra/database/types';
 import { ReservationService } from '../../reservation/reservation.service';
@@ -12,13 +12,13 @@ describe('Management', () => {
   let service: ManagementService;
 
   const ReservationServiceMock = {
-    onConcertEventCreated: jest.fn(),
+    onConcertCreated: jest.fn(),
   };
 
   beforeAll(async () => {
     module = await Test.createTestingModule({
       imports: [DatabaseModule],
-      providers: [ManagementService, EventsRepo, { provide: ReservationService, useValue: ReservationServiceMock }],
+      providers: [ManagementService, ConcertsRepo, { provide: ReservationService, useValue: ReservationServiceMock }],
     })
       .overrideProvider(DI_DATABASE_URI_TOKEN)
       .useValue(':memory:')
@@ -35,56 +35,60 @@ describe('Management', () => {
 
   afterEach(async () => {
     const database = module.get(DI_DATABASE_TOKEN) as Kysely<DB>;
-    await database.deleteFrom('events').execute();
+    await database.deleteFrom('management_concerts').execute();
   });
 
-  describe('createConcertEvent', () => {
-    it('should create a event with type concert', async () => {
-      const { id } = await service.createConcertEvent('Salmo', '2024-07-01', 'Hellraisers', 100);
+  describe('createConcert', () => {
+    it('should create a concert', async () => {
+      const { id } = await service.createConcert('Salmo', '2024-07-01', 'Hellraisers', 100);
 
-      const event = await service.getEventById(id);
-      expect(event.type).toBe('concert');
+      const concert = await service.getConcertById(id);
+      expect(concert).toMatchObject({
+        date: '2024-07-01',
+        description: 'Hellraisers',
+        seatingCapacity: 100,
+        title: 'Salmo',
+      });
     });
 
     it('should notify concert creation to reservation BC', async () => {
-      const { id } = await service.createConcertEvent('Salmo', '2024-07-01', 'Hellraisers', 100);
+      const { id } = await service.createConcert('Salmo', '2024-07-01', 'Hellraisers', 100);
 
-      const event = await service.getEventById(id);
-      expect(ReservationServiceMock.onConcertEventCreated).toBeCalledWith(event);
+      const concert = await service.getConcertById(id);
+      expect(ReservationServiceMock.onConcertCreated).toBeCalledWith(concert);
     });
   });
 
-  describe('listEvents', () => {
-    it('should list all events', async () => {
-      await service.createConcertEvent('Salmo', '2024-07-01', 'Hellraisers', 100);
-      await service.createConcertEvent('Jovanotti', '2024-07-02', 'PalaJova', 100);
+  describe('listConcerts', () => {
+    it('should list all concerts', async () => {
+      await service.createConcert('Salmo', '2024-07-01', 'Hellraisers', 100);
+      await service.createConcert('Jovanotti', '2024-07-02', 'PalaJova', 100);
 
-      const events = await service.listEvents();
+      const concerts = await service.listConcerts();
 
-      expect(events).toHaveLength(2);
-      expect(events[1]).toMatchObject({
+      expect(concerts).toHaveLength(2);
+      expect(concerts[1]).toMatchObject({
         date: '2024-07-02',
         description: 'PalaJova',
         id: expect.any(String),
         title: 'Jovanotti',
-        type: 'concert',
       });
     });
   });
 
   describe('update', () => {
-    let eventId: string;
+    let concertId: string;
 
     beforeEach(async () => {
-      const { id } = await service.createConcertEvent('Salmo', '2024-07-01', 'Hellraisers', 100);
-      eventId = id;
+      const { id } = await service.createConcert('Salmo', '2024-07-01', 'Hellraisers', 100);
+      concertId = id;
     });
 
-    it('should update the event ', async () => {
-      await service.updateEvent(eventId, { title: 'Maurizio Pisciottu' });
+    it('should update the concert ', async () => {
+      await service.updateConcert(concertId, { title: 'Maurizio Pisciottu' });
 
-      const event = await service.getEventById(eventId);
-      expect(event.title).toBe('Maurizio Pisciottu');
+      const concert = await service.getConcertById(concertId);
+      expect(concert.title).toBe('Maurizio Pisciottu');
     });
   });
 });
