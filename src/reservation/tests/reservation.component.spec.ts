@@ -2,10 +2,10 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { ConcertsRepo } from '../concerts.repo';
 import { ReservationService } from '../reservation.service';
 import { AvailableSeatsRepo } from '../available-seats.repo';
-import { DatabaseModule } from '../../infra/database/database.module';
-import { DI_DATABASE_URI_TOKEN } from '../../infra/database/di-tokens';
+import { DatabaseModule } from '../../@infra/database/database.module';
+import { DI_DATABASE_URI_TOKEN } from '../../@infra/database/di-tokens';
 import { CommunicationService } from '../../communication/communication.service';
-import { ManagementConcert } from '../../infra/database/types';
+import { ManagementConcert } from '../../@infra/database/types';
 
 describe('Reservation', () => {
   let module: TestingModule;

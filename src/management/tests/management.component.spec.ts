@@ -1,10 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { DatabaseModule } from '../../infra/database/database.module';
-import { DI_DATABASE_TOKEN, DI_DATABASE_URI_TOKEN } from '../../infra/database/di-tokens';
+import { DatabaseModule } from '../../@infra/database/database.module';
+import { DI_DATABASE_TOKEN, DI_DATABASE_URI_TOKEN } from '../../@infra/database/di-tokens';
 import { ManagementService } from '../management.service';
 import { ConcertsRepo } from '../concerts.repo';
 import { Kysely } from 'kysely';
-import { DB } from '../../infra/database/types';
+import { DB } from '../../@infra/database/types';
 import { ReservationService } from '../../reservation/reservation.service';
 
 describe('Management', () => {
