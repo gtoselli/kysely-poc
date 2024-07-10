@@ -16,6 +16,7 @@ export type Event = {
   description: string;
   date: string;
   type: 'concert' | 'show';
+  seatingCapacity?: number;
 };
 
 export type DB = {

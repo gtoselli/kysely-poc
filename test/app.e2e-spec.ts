@@ -34,6 +34,7 @@ describe('App (e2e)', () => {
           'Marracash',
           '20 novembre 2024',
           'Noi, Loro, Gli Altri Tour',
+          100,
         );
         eventId = id;
       });
@@ -50,7 +51,7 @@ describe('App (e2e)', () => {
       it('all places must be available (in reservation BC)', async () => {
         const availableSeats = await concertsService.getAvailableSeats(eventId);
 
-        expect(availableSeats).toHaveLength(10);
+        expect(availableSeats).toHaveLength(100);
       });
     });
   });

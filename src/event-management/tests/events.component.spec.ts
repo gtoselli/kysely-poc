@@ -51,6 +51,7 @@ describe('Event management', () => {
         'Salmo',
         '2024-07-01',
         'Hellraisers',
+        100,
       );
 
       const event = await service.getEventById(id);
@@ -62,6 +63,7 @@ describe('Event management', () => {
         'Salmo',
         '2024-07-01',
         'Hellraisers',
+        100,
       );
 
       const event = await service.getEventById(id);
@@ -71,8 +73,18 @@ describe('Event management', () => {
 
   describe('listEvents', () => {
     it('should list all events', async () => {
-      await service.createConcertEvent('Salmo', '2024-07-01', 'Hellraisers');
-      await service.createConcertEvent('Jovanotti', '2024-07-02', 'PalaJova');
+      await service.createConcertEvent(
+        'Salmo',
+        '2024-07-01',
+        'Hellraisers',
+        100,
+      );
+      await service.createConcertEvent(
+        'Jovanotti',
+        '2024-07-02',
+        'PalaJova',
+        100,
+      );
 
       const events = await service.listEvents();
 
@@ -95,6 +107,7 @@ describe('Event management', () => {
         'Salmo',
         '2024-07-01',
         'Hellraisers',
+        100,
       );
       eventId = id;
     });

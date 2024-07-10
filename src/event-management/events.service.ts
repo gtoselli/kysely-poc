@@ -15,6 +15,7 @@ export class EventsService {
     title: string,
     date: string,
     description: string,
+    seatingCapacity: number,
   ) {
     const event: Event = {
       id: nanoid(),
@@ -22,6 +23,7 @@ export class EventsService {
       date,
       description,
       type: 'concert',
+      seatingCapacity,
     };
 
     await this.eventsRepo.create(event);
@@ -38,6 +40,7 @@ export class EventsService {
 
     if (data.title) event.title = data.title;
     if (data.description) event.description = data.description;
+    if (data.seatingCapacity) event.seatingCapacity = data.seatingCapacity;
 
     await this.eventsRepo.update(event);
     return { id: event.id };

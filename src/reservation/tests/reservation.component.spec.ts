@@ -73,13 +73,14 @@ describe('Reservation', () => {
       date: '2024-07-01',
       description: 'Hellraisers',
       type: 'concert',
+      seatingCapacity: 500,
     };
 
     it('should create a concert with 10 seats', async () => {
       await service.onConcertEventCreated(event);
 
       const concert = await service.getById(event.id);
-      expect(concert.getAvailableSeats()).toBe(10);
+      expect(concert.getAvailableSeats()).toBe(500);
     });
   });
 });
