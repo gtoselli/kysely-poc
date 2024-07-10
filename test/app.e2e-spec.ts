@@ -3,12 +3,12 @@ import { INestApplication } from '@nestjs/common';
 import { AppModule } from '../src/app.module';
 import { EventsService } from '../src/event-management/events.service';
 import { DI_DATABASE_URI_TOKEN } from '../src/infra/database/di-tokens';
-import { ConcertsService } from '../src/reservation/concerts.service';
+import { ReservationService } from '../src/reservation/reservation.service';
 
 describe('App (e2e)', () => {
   let app: INestApplication;
   let eventsService: EventsService;
-  let concertsService: ConcertsService;
+  let reservationService: ReservationService;
 
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -22,7 +22,7 @@ describe('App (e2e)', () => {
     await app.init();
 
     eventsService = app.get(EventsService);
-    concertsService = app.get(ConcertsService);
+    reservationService = app.get(ReservationService);
   });
 
   describe('Given no events', () => {
@@ -49,7 +49,8 @@ describe('App (e2e)', () => {
       });
 
       it('all places must be available (in reservation BC)', async () => {
-        const availableSeats = await concertsService.getAvailableSeats(eventId);
+        const availableSeats =
+          await reservationService.getAvailableSeats(eventId);
 
         expect(availableSeats).toHaveLength(100);
       });
@@ -71,11 +72,12 @@ describe('App (e2e)', () => {
 
     describe('When reserve seat', () => {
       beforeEach(async () => {
-        await concertsService.reserveSeat(eventId, 1);
+        await reservationService.reserveSeat(eventId, 1);
       });
 
       it('reserved seat must not be shown as available', async () => {
-        const availableSeats = await concertsService.getAvailableSeats(eventId);
+        const availableSeats =
+          await reservationService.getAvailableSeats(eventId);
 
         expect(availableSeats).toHaveLength(99);
       });

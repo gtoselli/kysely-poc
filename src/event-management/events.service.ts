@@ -2,13 +2,13 @@ import { EventsRepo } from './events.repo';
 import { Event } from '../infra/database/types';
 import { nanoid } from 'nanoid';
 import { Injectable } from '@nestjs/common';
-import { ConcertsService } from '../reservation/concerts.service';
+import { ReservationService } from '../reservation/reservation.service';
 
 @Injectable()
 export class EventsService {
   constructor(
     private readonly eventsRepo: EventsRepo,
-    private readonly concertsService: ConcertsService,
+    private readonly reservationService: ReservationService,
   ) {}
 
   public async createConcertEvent(
@@ -28,7 +28,7 @@ export class EventsService {
 
     await this.eventsRepo.create(event);
 
-    await this.concertsService.onConcertEventCreated(event);
+    await this.reservationService.onConcertEventCreated(event);
     return { id: event.id };
   }
 

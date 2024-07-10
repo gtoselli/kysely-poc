@@ -5,7 +5,7 @@ import { AvailableSeatsRepo } from './available-seats.repo';
 import { Event } from '../infra/database/types';
 
 @Injectable()
-export class ConcertsService {
+export class ReservationService {
   constructor(
     private readonly repo: ConcertsRepo,
     private readonly availableSeatsRepo: AvailableSeatsRepo,

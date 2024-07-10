@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ConcertsRepo } from '../concerts.repo';
-import { ConcertsService } from '../concerts.service';
+import { ReservationService } from '../reservation.service';
 import { AvailableSeatsRepo } from '../available-seats.repo';
 import { DatabaseModule } from '../../infra/database/database.module';
 import { DI_DATABASE_URI_TOKEN } from '../../infra/database/di-tokens';
@@ -8,12 +8,12 @@ import { Event } from '../../infra/database/types';
 
 describe('Reservation', () => {
   let module: TestingModule;
-  let service: ConcertsService;
+  let service: ReservationService;
 
   beforeAll(async () => {
     module = await Test.createTestingModule({
       imports: [DatabaseModule],
-      providers: [ConcertsService, ConcertsRepo, AvailableSeatsRepo],
+      providers: [ReservationService, ConcertsRepo, AvailableSeatsRepo],
     })
       .overrideProvider(DI_DATABASE_URI_TOKEN)
       .useValue(':memory:')
@@ -21,7 +21,7 @@ describe('Reservation', () => {
 
     await module.init();
 
-    service = module.get(ConcertsService);
+    service = module.get(ReservationService);
   });
 
   afterAll(async () => {

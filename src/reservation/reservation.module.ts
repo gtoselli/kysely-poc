@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
 import { ConcertsRepo } from './concerts.repo';
-import { ConcertsService } from './concerts.service';
+import { ReservationService } from './reservation.service';
 import { AvailableSeatsRepo } from './available-seats.repo';
 
 @Module({
-  providers: [ConcertsService, ConcertsRepo, AvailableSeatsRepo],
-  exports: [ConcertsService],
+  providers: [ReservationService, ConcertsRepo, AvailableSeatsRepo],
+  exports: [ReservationService],
 })
 export class ReservationModule {}

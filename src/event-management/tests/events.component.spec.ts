@@ -8,7 +8,7 @@ import { EventsService } from '../events.service';
 import { EventsRepo } from '../events.repo';
 import { Kysely } from 'kysely';
 import { DB } from '../../infra/database/types';
-import { ConcertsService } from '../../reservation/concerts.service';
+import { ReservationService } from '../../reservation/reservation.service';
 
 describe('Event management', () => {
   let module: TestingModule;
@@ -24,7 +24,7 @@ describe('Event management', () => {
       providers: [
         EventsService,
         EventsRepo,
-        { provide: ConcertsService, useValue: ReservationBCMock },
+        { provide: ReservationService, useValue: ReservationBCMock },
       ],
     })
       .overrideProvider(DI_DATABASE_URI_TOKEN)
