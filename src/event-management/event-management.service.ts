@@ -5,7 +5,7 @@ import { Injectable } from '@nestjs/common';
 import { ReservationService } from '../reservation/reservation.service';
 
 @Injectable()
-export class EventsService {
+export class EventManagementService {
   constructor(
     private readonly eventsRepo: EventsRepo,
     private readonly reservationService: ReservationService,

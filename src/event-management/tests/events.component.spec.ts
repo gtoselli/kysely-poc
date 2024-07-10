@@ -4,7 +4,7 @@ import {
   DI_DATABASE_TOKEN,
   DI_DATABASE_URI_TOKEN,
 } from '../../infra/database/di-tokens';
-import { EventsService } from '../events.service';
+import { EventManagementService } from '../event-management.service';
 import { EventsRepo } from '../events.repo';
 import { Kysely } from 'kysely';
 import { DB } from '../../infra/database/types';
@@ -12,9 +12,9 @@ import { ReservationService } from '../../reservation/reservation.service';
 
 describe('Event management', () => {
   let module: TestingModule;
-  let service: EventsService;
+  let service: EventManagementService;
 
-  const ReservationBCMock = {
+  const ReservationServiceMock = {
     onConcertEventCreated: jest.fn(),
   };
 
@@ -22,9 +22,9 @@ describe('Event management', () => {
     module = await Test.createTestingModule({
       imports: [DatabaseModule],
       providers: [
-        EventsService,
+        EventManagementService,
         EventsRepo,
-        { provide: ReservationService, useValue: ReservationBCMock },
+        { provide: ReservationService, useValue: ReservationServiceMock },
       ],
     })
       .overrideProvider(DI_DATABASE_URI_TOKEN)
@@ -33,7 +33,7 @@ describe('Event management', () => {
 
     await module.init();
 
-    service = module.get(EventsService);
+    service = module.get(EventManagementService);
   });
 
   afterAll(async () => {
@@ -67,7 +67,9 @@ describe('Event management', () => {
       );
 
       const event = await service.getEventById(id);
-      expect(ReservationBCMock.onConcertEventCreated).toBeCalledWith(event);
+      expect(ReservationServiceMock.onConcertEventCreated).toBeCalledWith(
+        event,
+      );
     });
   });
 
