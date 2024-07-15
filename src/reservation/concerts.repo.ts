@@ -1,10 +1,10 @@
 import { Kysely, Transaction } from 'kysely';
 import { Injectable } from '@nestjs/common';
 import { ConcertAggregate } from './domain/concert.aggregate';
-import { Concert, DB, InjectDatabase } from '../@infra';
+import { DB, InjectDatabase, ReservationConcert } from '../@infra';
 import { ConcertSeatsEntity } from './domain/concert-seats.entity';
 
-export type TransactionalHook = (trx: Transaction<DB>, model: Concert) => Promise<void>;
+export type TransactionalHook = (trx: Transaction<DB>, model: ReservationConcert) => Promise<void>;
 
 @Injectable()
 export class ConcertsRepo {
@@ -13,17 +13,21 @@ export class ConcertsRepo {
   constructor(@InjectDatabase() private readonly database: Kysely<DB>) {}
 
   public async saveAndSerialize(concert: ConcertAggregate) {
-    const concertModel: Concert = {
+    const concertModel: ReservationConcert = {
       id: concert.id,
       seats: JSON.stringify(concert.seatsEntity.seats),
     };
 
     await this.database.transaction().execute(async (trx) => {
-      const exists = await trx.selectFrom('concerts').where('id', '=', concertModel.id).select('id').executeTakeFirst();
+      const exists = await trx
+        .selectFrom('reservation__concerts')
+        .where('id', '=', concertModel.id)
+        .select('id')
+        .executeTakeFirst();
 
       if (exists) {
         await trx
-          .updateTable('concerts')
+          .updateTable('reservation__concerts')
           .set({ ...concertModel })
           .where('id', '=', concertModel.id)
           .execute();
@@ -32,7 +36,7 @@ export class ConcertsRepo {
       }
 
       await trx
-        .insertInto('concerts')
+        .insertInto('reservation__concerts')
         .values({ ...concertModel })
         .execute();
       await this.transactionalHook?.(trx, concertModel);
@@ -40,7 +44,11 @@ export class ConcertsRepo {
   }
 
   public async getByIdAndDeserialize(id: string) {
-    const concertModel = await this.database.selectFrom('concerts').where('id', '=', id).selectAll().executeTakeFirst();
+    const concertModel = await this.database
+      .selectFrom('reservation__concerts')
+      .where('id', '=', id)
+      .selectAll()
+      .executeTakeFirst();
 
     return concertModel
       ? new ConcertAggregate(concertModel.id, new ConcertSeatsEntity(JSON.parse(concertModel.seats)))

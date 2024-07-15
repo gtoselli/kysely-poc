@@ -7,16 +7,16 @@ export class ConcertsRepo {
   constructor(@InjectDatabase() private readonly database: Kysely<DB>) {}
 
   public async create(concert: ManagementConcert) {
-    await this.database.insertInto('management_concerts').values(concert).execute();
+    await this.database.insertInto('management__concerts').values(concert).execute();
   }
 
   public async update(concert: ManagementConcert) {
-    await this.database.updateTable('management_concerts').set(concert).where('id', '=', concert.id).execute();
+    await this.database.updateTable('management__concerts').set(concert).where('id', '=', concert.id).execute();
   }
 
   public async getById(id: string) {
     const concert = await this.database
-      .selectFrom('management_concerts')
+      .selectFrom('management__concerts')
       .selectAll()
       .where('id', '=', id)
       .executeTakeFirst();
@@ -25,6 +25,6 @@ export class ConcertsRepo {
   }
 
   public async list() {
-    return await this.database.selectFrom('management_concerts').selectAll().execute();
+    return await this.database.selectFrom('management__concerts').selectAll().execute();
   }
 }

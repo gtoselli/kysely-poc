@@ -1,4 +1,4 @@
-export type Concert = {
+export type ReservationConcert = {
   id: string;
   seats: string;
 };
@@ -19,7 +19,7 @@ export type ManagementConcert = {
 };
 
 export type DB = {
-  available_seats: AvailableSeat;
-  concerts: Concert;
-  management_concerts: ManagementConcert;
+  ['reservation__available_seats']: AvailableSeat;
+  ['reservation__concerts']: ReservationConcert;
+  ['management__concerts']: ManagementConcert;
 };

@@ -10,7 +10,7 @@ Main goals are:
 - ...
 
 ### Next steps
-- [ ] Better tables name
+- [x] Better tables name
 - [ ] Change e2e entrypoint from service to controller (via api
 - [ ] Try to centralise the transactional scope
 - [ ] Switch from sqlite to postgres (to increase test complexity)

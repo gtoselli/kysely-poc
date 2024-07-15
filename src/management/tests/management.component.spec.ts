@@ -33,7 +33,7 @@ describe('Management', () => {
 
   afterEach(async () => {
     const database = module.get(DI_DATABASE_TOKEN) as Kysely<DB>;
-    await database.deleteFrom('management_concerts').execute();
+    await database.deleteFrom('management__concerts').execute();
   });
 
   describe('createConcert', () => {
