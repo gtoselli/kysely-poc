@@ -1,22 +1,22 @@
-import { Global, Logger, Module } from '@nestjs/common';
-import { Kysely, SqliteDialect } from 'kysely';
-import * as SQLite from 'better-sqlite3';
+import { Global, Logger, Module, OnModuleDestroy } from '@nestjs/common';
+import { Kysely, PostgresDialect } from 'kysely';
 import { DB } from './types';
 import { DatabaseMigrator } from './database.migrator';
-import { DI_DATABASE_TOKEN, DI_DATABASE_URI_TOKEN } from './di-tokens';
+import { DI_DATABASE_TOKEN, InjectDatabase } from './di-tokens';
+import { Pool } from 'pg';
+import { ConfigService } from '@nestjs/config';
 
 @Global()
 @Module({
   imports: [],
   providers: [
-    { provide: DI_DATABASE_URI_TOKEN, useValue: 'dev.db' },
     {
       provide: DI_DATABASE_TOKEN,
-      useFactory: async (databaseUri: string) => {
+      useFactory: async (configService: ConfigService) => {
         const logger = new Logger('DatabaseModule');
 
-        const dialect = new SqliteDialect({
-          database: new SQLite(databaseUri),
+        const dialect = new PostgresDialect({
+          pool: new Pool({ connectionString: configService.getOrThrow('DB_CONNECTION_STRING') }),
         });
 
         return new Kysely<DB>({
@@ -32,10 +32,16 @@ import { DI_DATABASE_TOKEN, DI_DATABASE_URI_TOKEN } from './di-tokens';
           },
         });
       },
-      inject: [DI_DATABASE_URI_TOKEN],
+      inject: [ConfigService],
     },
     DatabaseMigrator,
   ],
   exports: [DI_DATABASE_TOKEN],
 })
-export class DatabaseModule {}
+export class DatabaseModule implements OnModuleDestroy {
+  constructor(@InjectDatabase() private readonly db: Kysely<DB>) {}
+
+  async onModuleDestroy() {
+    await this.db.destroy();
+  }
+}

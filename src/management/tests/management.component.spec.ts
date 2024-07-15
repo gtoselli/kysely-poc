@@ -1,9 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { DatabaseModule, DB, DI_DATABASE_TOKEN, DI_DATABASE_URI_TOKEN } from '../../@infra';
+import { DB, DI_DATABASE_TOKEN } from '../../@infra';
 import { ManagementService } from '../management.service';
 import { ConcertsRepo } from '../concerts.repo';
 import { Kysely } from 'kysely';
 import { ReservationService } from '../../reservation/reservation.service';
+import { DatabaseInMemModule } from '../../@infra/database';
 
 describe('Management', () => {
   let module: TestingModule;
@@ -15,12 +16,9 @@ describe('Management', () => {
 
   beforeAll(async () => {
     module = await Test.createTestingModule({
-      imports: [DatabaseModule],
+      imports: [DatabaseInMemModule],
       providers: [ManagementService, ConcertsRepo, { provide: ReservationService, useValue: ReservationServiceMock }],
-    })
-      .overrideProvider(DI_DATABASE_URI_TOKEN)
-      .useValue(':memory:')
-      .compile();
+    }).compile();
 
     await module.init();
 

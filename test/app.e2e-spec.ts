@@ -1,24 +1,28 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import { AppModule } from '../src/app.module';
-import { DI_DATABASE_URI_TOKEN } from '../src/@infra';
 import { ReservationService } from '../src/reservation/reservation.service';
 import { ManagementService } from '../src/management/management.service';
 import { EmailChannelProvider } from '../src/communication/channels/email-channel.provider';
+import { GenericContainer, StartedTestContainer } from 'testcontainers';
 
 describe('App (e2e)', () => {
   let app: INestApplication;
   let managementService: ManagementService;
   let reservationService: ReservationService;
+  let postgresContainer: StartedTestContainer;
 
   const EmailChannelProviderMock = { send: jest.fn() };
 
-  beforeEach(async () => {
+  beforeAll(async () => {
+    postgresContainer = await new GenericContainer('postgres:latest')
+      .withExposedPorts({ host: 5432, container: 5432 })
+      .withEnvironment({ POSTGRES_PASSWORD: 'password' })
+      .start();
+
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
     })
-      .overrideProvider(DI_DATABASE_URI_TOKEN)
-      .useValue(':memory:')
       .overrideProvider(EmailChannelProvider)
       .useValue(EmailChannelProviderMock)
       .compile();
@@ -28,6 +32,11 @@ describe('App (e2e)', () => {
 
     managementService = app.get(ManagementService);
     reservationService = app.get(ReservationService);
+  });
+
+  afterAll(async () => {
+    await app.close();
+    await postgresContainer.stop({ remove: true });
   });
 
   describe('Given no concerts', () => {
