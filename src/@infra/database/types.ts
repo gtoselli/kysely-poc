@@ -7,7 +7,6 @@ export type AvailableSeat = {
   id: string;
   concertId: string;
   seatNumber: number;
-  concertTitle: string;
 };
 
 export type ManagementConcert = {

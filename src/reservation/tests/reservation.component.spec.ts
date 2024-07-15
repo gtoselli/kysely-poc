@@ -72,7 +72,6 @@ describe('Reservation', () => {
 
       expect(availableSeat).toMatchObject({
         seatNumber: 2,
-        concertTitle: '',
       });
     });
 
