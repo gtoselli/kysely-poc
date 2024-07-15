@@ -1,6 +1,8 @@
 export type ReservationConcert = {
   id: string;
   seats: string;
+
+  _version: number;
 };
 
 export type AvailableSeat = {
@@ -14,7 +16,7 @@ export type ManagementConcert = {
   title: string;
   description: string;
   date: string;
-  seatingCapacity?: number;
+  seatingCapacity: number;
 };
 
 export type DB = {

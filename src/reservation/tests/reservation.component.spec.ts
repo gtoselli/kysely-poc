@@ -2,8 +2,9 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { ConcertsRepo } from '../concerts.repo';
 import { ReservationService } from '../reservation.service';
 import { AvailableSeatsRepo } from '../available-seats.repo';
-import { DatabaseInMemModule, ManagementConcert } from '../../@infra';
+import { DatabaseInMemModule, DB, DI_DATABASE_TOKEN, ManagementConcert } from '../../@infra';
 import { CommunicationService } from '../../communication/communication.service';
+import { Kysely } from 'kysely';
 
 describe('Reservation', () => {
   let module: TestingModule;
@@ -31,6 +32,11 @@ describe('Reservation', () => {
 
   afterAll(async () => {
     await module.close();
+  });
+
+  afterEach(async () => {
+    await (module.get(DI_DATABASE_TOKEN) as Kysely<DB>).deleteFrom('reservation__concerts').execute();
+    await (module.get(DI_DATABASE_TOKEN) as Kysely<DB>).deleteFrom('reservation__available_seats').execute();
   });
 
   const concert: ManagementConcert = {

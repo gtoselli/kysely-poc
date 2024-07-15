@@ -4,6 +4,7 @@ export class ConcertAggregate {
   constructor(
     public readonly id: string,
     public seatsEntity: ConcertSeatsEntity,
+    public readonly version: number = 0,
   ) {}
 
   static factory(concertId: string, seatingCapacity: number) {

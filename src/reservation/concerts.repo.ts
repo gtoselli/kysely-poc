@@ -16,29 +16,23 @@ export class ConcertsRepo {
     const concertModel: ReservationConcert = {
       id: concert.id,
       seats: JSON.stringify(concert.seatsEntity.seats),
+      _version: concert.version + 1,
     };
 
     await this.database.transaction().execute(async (trx) => {
-      const exists = await trx
-        .selectFrom('reservation__concerts')
-        .where('id', '=', concertModel.id)
-        .select('id')
-        .executeTakeFirst();
+      const result = await trx
+        .insertInto('reservation__concerts')
+        .values(concertModel)
+        .onConflict((oc) =>
+          oc.column('id').doUpdateSet(concertModel).where('reservation__concerts._version', '=', concert.version),
+        )
+        .execute();
 
-      if (exists) {
-        await trx
-          .updateTable('reservation__concerts')
-          .set({ ...concertModel })
-          .where('id', '=', concertModel.id)
-          .execute();
-        await this.transactionalHook?.(trx, concertModel);
-        return;
+      if (result?.[0].numInsertedOrUpdatedRows === 0n) {
+        if (concert.version === 0) throw new Error(`Cannot save aggregate ${concert.id} due duplicated id`);
+        throw new Error(`Cannot save aggregate ${concert.id} due optimistic lock`);
       }
 
-      await trx
-        .insertInto('reservation__concerts')
-        .values({ ...concertModel })
-        .execute();
       await this.transactionalHook?.(trx, concertModel);
     });
   }
@@ -51,7 +45,11 @@ export class ConcertsRepo {
       .executeTakeFirst();
 
     return concertModel
-      ? new ConcertAggregate(concertModel.id, new ConcertSeatsEntity(JSON.parse(concertModel.seats)))
+      ? new ConcertAggregate(
+          concertModel.id,
+          new ConcertSeatsEntity(JSON.parse(concertModel.seats)),
+          concertModel._version,
+        )
       : null;
   }
 
