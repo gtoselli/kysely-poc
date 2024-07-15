@@ -17,13 +17,6 @@ export class ReservationService {
     });
   }
 
-  public async create(concertId: string, seatingCapacity: number) {
-    const concert = ConcertAggregate.factory(concertId, seatingCapacity);
-
-    await this.repo.saveAndSerialize(concert);
-    return { id: concert.id };
-  }
-
   public async reserveSeat(id: string, seatNumber: number) {
     const concert = await this.getById(id);
 
@@ -37,15 +30,22 @@ export class ReservationService {
     return await this.availableSeatsRepo.getByConcertId(id);
   }
 
-  public async getById(id: string) {
+  public async onConcertCreated(concert: ManagementConcert) {
+    if (!concert.seatingCapacity) throw new Error('Seating capacity must be provided');
+
+    await this.create(concert.id, concert.seatingCapacity);
+  }
+
+  private async getById(id: string) {
     const concert = await this.repo.getByIdAndDeserialize(id);
     if (!concert) throw new Error(`Concert ${id} not found`);
     return concert;
   }
 
-  async onConcertCreated(concert: ManagementConcert) {
-    if (!concert.seatingCapacity) throw new Error('Seating capacity must be provided');
+  private async create(concertId: string, seatingCapacity: number) {
+    const concert = ConcertAggregate.factory(concertId, seatingCapacity);
 
-    await this.create(concert.id, concert.seatingCapacity);
+    await this.repo.saveAndSerialize(concert);
+    return { id: concert.id };
   }
 }

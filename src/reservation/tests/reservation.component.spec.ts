@@ -33,35 +33,41 @@ describe('Reservation', () => {
     await module.close();
   });
 
-  describe('create', () => {
-    it('should create a concert', async () => {
-      const { id } = await service.create('foo-concert-id', 2);
+  const concert: ManagementConcert = {
+    id: 'foo-concert-id',
+    title: 'Salmo',
+    date: '2024-07-01',
+    description: 'Hellraisers',
+    seatingCapacity: 10,
+  };
 
-      const concert = await service.getById(id);
-      expect(concert).toMatchObject({ id });
+  describe('on ConcertCreated', () => {
+    it('should create a concert with 10 seats', async () => {
+      await service.onConcertCreated(concert);
+
+      const availableSeats = await service.getAvailableSeats(concert.id);
+      expect(availableSeats).toHaveLength(10);
     });
   });
 
   describe('reserveSeat', () => {
-    let concertId: string;
     beforeEach(async () => {
-      const { id } = await service.create('foo-concert-id', 2);
-      concertId = id;
+      await service.onConcertCreated(concert);
     });
 
     it('reserved seat should not be listed in available seats', async () => {
-      await service.reserveSeat(concertId, 1);
+      await service.reserveSeat(concert.id, 1);
 
-      const availableSeats = await service.getAvailableSeats(concertId);
-      expect(availableSeats).toHaveLength(1);
+      const availableSeats = await service.getAvailableSeats(concert.id);
+      expect(availableSeats).toHaveLength(9);
       expect(availableSeats.map((s) => s.seatNumber)).not.toContain(1);
       expect(availableSeats.map((s) => s.seatNumber)).toContain(2);
     });
 
     it('available seats should be listed', async () => {
-      await service.reserveSeat(concertId, 1);
+      await service.reserveSeat(concert.id, 1);
 
-      const availableSeats = await service.getAvailableSeats(concertId);
+      const availableSeats = await service.getAvailableSeats(concert.id);
       const availableSeat = availableSeats.find((s) => s.seatNumber === 2);
 
       expect(availableSeat).toMatchObject({
@@ -71,26 +77,9 @@ describe('Reservation', () => {
     });
 
     it('should notify seat reserved to communication BC', async () => {
-      await service.reserveSeat(concertId, 1);
+      await service.reserveSeat(concert.id, 1);
 
-      expect(CommunicationServiceMock.onConcertSeatReserved).toHaveBeenCalledWith(concertId, 1);
-    });
-  });
-
-  describe('on ConcertCreated', () => {
-    const concert: ManagementConcert = {
-      id: 'foo-concert-id',
-      title: 'Salmo',
-      date: '2024-07-01',
-      description: 'Hellraisers',
-      seatingCapacity: 500,
-    };
-
-    it('should create a concert with 10 seats', async () => {
-      await service.onConcertCreated(concert);
-
-      const concertAggregate = await service.getById(concert.id);
-      expect(concertAggregate.getAvailableSeats()).toBe(500);
+      expect(CommunicationServiceMock.onConcertSeatReserved).toHaveBeenCalledWith(concert.id, 1);
     });
   });
 });
