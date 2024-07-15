@@ -1,15 +1,15 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import { AppModule } from '../src/app.module';
-import { ReservationService } from '../src/reservation/reservation.service';
 import { EmailChannelProvider } from '../src/communication/channels/email-channel.provider';
 import { GenericContainer, StartedTestContainer } from 'testcontainers';
 import { ManagementController } from '../src/management/api/management.controller';
+import { ReservationController } from '../src/reservation/api/reservation.controller';
 
 describe('App (e2e)', () => {
   let app: INestApplication;
   let managementController: ManagementController;
-  let reservationService: ReservationService;
+  let reservationController: ReservationController;
   let postgresContainer: StartedTestContainer;
 
   const EmailChannelProviderMock = { send: jest.fn() };
@@ -31,7 +31,7 @@ describe('App (e2e)', () => {
     await app.init();
 
     managementController = app.get(ManagementController);
-    reservationService = app.get(ReservationService);
+    reservationController = app.get(ReservationController);
   });
 
   afterAll(async () => {
@@ -63,7 +63,7 @@ describe('App (e2e)', () => {
       });
 
       it('all places must be available (in reservation BC)', async () => {
-        const availableSeats = await reservationService.getAvailableSeats(concertId);
+        const availableSeats = await reservationController.getAvailableSeats(concertId);
 
         expect(availableSeats).toHaveLength(100);
       });
@@ -85,11 +85,11 @@ describe('App (e2e)', () => {
 
     describe('When reserve seat', () => {
       beforeEach(async () => {
-        await reservationService.reserveSeat(concertId, 1);
+        await reservationController.reserveSeat(concertId, { seatNumber: 1 });
       });
 
       it('reserved seat must not be shown as available', async () => {
-        const availableSeats = await reservationService.getAvailableSeats(concertId);
+        const availableSeats = await reservationController.getAvailableSeats(concertId);
 
         expect(availableSeats).toHaveLength(99);
       });
