@@ -9,11 +9,6 @@ Main goals are:
 - understand how much to extend and how the transactional scope to reduce complexity (perhaps with [nestjs-cls](https://github.com/Papooch/nestjs-cls))
 - ...
 
-### Next steps
-- [x] Better tables name
-- [ ] Change e2e entrypoint from service to controller (via api
-- [ ] Try to centralise the transactional scope
-- [ ] Switch from sqlite to postgres (to increase test complexity)
 
 ### Usage
 
