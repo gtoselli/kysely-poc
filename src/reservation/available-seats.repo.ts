@@ -1,6 +1,6 @@
 import { Kysely, Transaction } from 'kysely';
 import { Injectable } from '@nestjs/common';
-import { DB, InjectDatabase, ReservationConcert } from '../@infra';
+import { AvailableSeat, DB, InjectDatabase, ReservationConcert } from '../@infra';
 
 @Injectable()
 export class AvailableSeatsRepo {
@@ -11,21 +11,19 @@ export class AvailableSeatsRepo {
       [key: string]: { reserved: boolean };
     };
 
-    await trx.deleteFrom('reservation__available_seats').where('concertId', '=', concert.id).execute();
-
+    const availableSeats: AvailableSeat[] = [];
     for (const seatNumber in seats) {
-      const reserved = seats[seatNumber].reserved;
-      if (reserved) continue;
+      if (seats[seatNumber].reserved) continue;
 
-      await trx
-        .insertInto('reservation__available_seats')
-        .values({
-          id: `${concert.id}__${seatNumber}`,
-          concertId: concert.id,
-          seatNumber: parseInt(seatNumber),
-        })
-        .execute();
+      availableSeats.push({
+        id: `${concert.id}__${seatNumber}`,
+        concertId: concert.id,
+        seatNumber: parseInt(seatNumber),
+      });
     }
+
+    await trx.deleteFrom('reservation__available_seats').where('concertId', '=', concert.id).execute();
+    await trx.insertInto('reservation__available_seats').values(availableSeats).execute();
   }
 
   public async getByConcertId(id: string) {
