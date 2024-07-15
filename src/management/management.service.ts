@@ -26,7 +26,7 @@ export class ManagementService {
     return { id: concert.id };
   }
 
-  public async updateConcert(id: string, data: Omit<Partial<ManagementConcert>, 'id' | 'date' | 'type'>) {
+  public async updateConcert(id: string, data: Omit<Partial<ManagementConcert>, 'id' | 'date'>) {
     const concert = await this.getConcertById(id);
 
     if (data.title) concert.title = data.title;
