@@ -2,13 +2,13 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import { AppModule } from '../src/app.module';
 import { ReservationService } from '../src/reservation/reservation.service';
-import { ManagementService } from '../src/management/management.service';
 import { EmailChannelProvider } from '../src/communication/channels/email-channel.provider';
 import { GenericContainer, StartedTestContainer } from 'testcontainers';
+import { ManagementController } from '../src/management/api/management.controller';
 
 describe('App (e2e)', () => {
   let app: INestApplication;
-  let managementService: ManagementService;
+  let managementController: ManagementController;
   let reservationService: ReservationService;
   let postgresContainer: StartedTestContainer;
 
@@ -30,7 +30,7 @@ describe('App (e2e)', () => {
     app = moduleFixture.createNestApplication();
     await app.init();
 
-    managementService = app.get(ManagementService);
+    managementController = app.get(ManagementController);
     reservationService = app.get(ReservationService);
   });
 
@@ -44,17 +44,17 @@ describe('App (e2e)', () => {
       let concertId: string;
 
       beforeEach(async () => {
-        const { id } = await managementService.createConcert(
-          'Marracash',
-          '20 novembre 2024',
-          'Noi, Loro, Gli Altri Tour',
-          100,
-        );
+        const { id } = await managementController.createConcert({
+          title: 'Marracash',
+          date: '20 novembre 2024',
+          description: 'Noi, Loro, Gli Altri Tour',
+          seatingCapacity: 100,
+        });
         concertId = id;
       });
 
       it('should be listed in concerts list (in management BC)', async () => {
-        const concerts = await managementService.listConcerts();
+        const concerts = await managementController.getConcerts();
 
         expect(concerts).toHaveLength(1);
         expect(concerts[0]).toMatchObject({
@@ -74,12 +74,12 @@ describe('App (e2e)', () => {
     let concertId: string;
 
     beforeEach(async () => {
-      const { id } = await managementService.createConcert(
-        'Marracash',
-        '20 novembre 2024',
-        'Noi, Loro, Gli Altri Tour',
-        100,
-      );
+      const { id } = await managementController.createConcert({
+        title: 'Marracash',
+        date: '20 novembre 2024',
+        description: 'Noi, Loro, Gli Altri Tour',
+        seatingCapacity: 100,
+      });
       concertId = id;
     });
 
