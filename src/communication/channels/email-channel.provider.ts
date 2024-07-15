@@ -7,6 +7,6 @@ export class EmailChannelProvider {
   public async send(toEmail: string, subject: string, message: string) {
     this.logger.log(`Sending email to ${toEmail} with subject ${subject} and message ${message}`);
     await new Promise((r) => setTimeout(r, 2000));
-    this.logger.log('Email sent ✅');
+    this.logger.log('Email sent \u{1F4E8}');
   }
 }
