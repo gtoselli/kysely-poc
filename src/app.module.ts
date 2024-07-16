@@ -4,9 +4,10 @@ import { ReservationModule } from './reservation/reservation.module';
 import { ManagementModule } from './management/management.module';
 import { CommunicationModule } from './communication/communication.module';
 import { ConfigModule } from './@infra/config/config.module';
+import { CommandBusModule } from './@infra/command-bus/command-bus.module';
 
 @Module({
-  imports: [ConfigModule, DatabaseModule, ReservationModule, ManagementModule, CommunicationModule],
+  imports: [ConfigModule, DatabaseModule, ReservationModule, ManagementModule, CommunicationModule, CommandBusModule],
   controllers: [],
   providers: [],
 })

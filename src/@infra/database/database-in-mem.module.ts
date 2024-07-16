@@ -1,6 +1,6 @@
 import { Global, Logger, Module } from '@nestjs/common';
 import { Kysely, SqliteDialect } from 'kysely';
-import { DB, DI_DATABASE_TOKEN } from './index';
+import { DB, getDatabaseToken } from './index';
 import * as SQLite from 'better-sqlite3';
 import { DatabaseMigrator } from './database.migrator';
 
@@ -9,7 +9,7 @@ import { DatabaseMigrator } from './database.migrator';
   imports: [],
   providers: [
     {
-      provide: DI_DATABASE_TOKEN,
+      provide: getDatabaseToken(),
       useFactory: async () => {
         const logger = new Logger('DatabaseModule');
 
@@ -34,6 +34,6 @@ import { DatabaseMigrator } from './database.migrator';
     },
     DatabaseMigrator,
   ],
-  exports: [DI_DATABASE_TOKEN],
+  exports: [getDatabaseToken()],
 })
 export class DatabaseInMemModule {}

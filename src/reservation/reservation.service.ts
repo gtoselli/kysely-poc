@@ -2,8 +2,9 @@ import { ConcertsRepo } from './concerts.repo';
 import { Injectable } from '@nestjs/common';
 import { ConcertAggregate } from './domain/concert.aggregate';
 import { AvailableSeatsRepo } from './available-seats.repo';
-import { ManagementConcert } from '../@infra';
+import { DB, ManagementConcert } from '../@infra';
 import { CommunicationService } from '../communication/communication.service';
+import { Transaction } from 'kysely';
 
 @Injectable()
 export class ReservationService {
@@ -30,8 +31,8 @@ export class ReservationService {
     return await this.availableSeatsRepo.getByConcertId(id);
   }
 
-  public async onConcertCreated(concert: ManagementConcert) {
-    await this.create(concert.id, concert.seatingCapacity);
+  public async onConcertCreated(concert: ManagementConcert, transaction?: Transaction<DB>) {
+    await this.create(concert.id, concert.seatingCapacity, transaction);
   }
 
   private async getById(id: string) {
@@ -40,10 +41,10 @@ export class ReservationService {
     return concert;
   }
 
-  private async create(concertId: string, seatingCapacity: number) {
+  private async create(concertId: string, seatingCapacity: number, transaction?: Transaction<DB>) {
     const concert = ConcertAggregate.factory(concertId, seatingCapacity);
 
-    await this.repo.saveAndSerialize(concert);
+    await this.repo.saveAndSerialize(concert, transaction);
     return { id: concert.id };
   }
 }

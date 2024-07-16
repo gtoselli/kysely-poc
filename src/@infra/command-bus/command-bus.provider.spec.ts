@@ -1,4 +1,5 @@
-import { Command, ICommandHandler, LocalCommandBus } from './command-bus.provider';
+import { CommandBus } from './command-bus.provider';
+import { Command, ICommandHandler } from './types';
 
 class FooCommand extends Command<{ foo: string }> {
   constructor(public payload: { foo: string }) {
@@ -27,10 +28,10 @@ class BarCommandHandler implements ICommandHandler<BarCommand> {
 }
 
 describe('Local Command Bus', () => {
-  let localCommandBus: LocalCommandBus;
+  let localCommandBus: CommandBus;
 
   beforeEach(() => {
-    localCommandBus = new LocalCommandBus();
+    localCommandBus = new CommandBus(undefined);
   });
 
   afterEach(() => {

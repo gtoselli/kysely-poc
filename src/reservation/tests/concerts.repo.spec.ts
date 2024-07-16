@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ConcertsRepo } from '../concerts.repo';
-import { DatabaseInMemModule, DB, DI_DATABASE_TOKEN } from '../../@infra';
+import { DatabaseInMemModule, DB, getDatabaseToken } from '../../@infra';
 import { ConcertAggregate } from '../domain/concert.aggregate';
 import { Kysely } from 'kysely';
 
@@ -24,7 +24,7 @@ describe('Concerts repo', () => {
   });
 
   afterEach(async () => {
-    await (module.get(DI_DATABASE_TOKEN) as Kysely<DB>).deleteFrom('reservation__concerts').execute();
+    await (module.get(getDatabaseToken()) as Kysely<DB>).deleteFrom('reservation__concerts').execute();
   });
 
   const id = 'foo-id';

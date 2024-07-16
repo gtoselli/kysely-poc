@@ -2,7 +2,7 @@ import { Global, Logger, Module, OnModuleDestroy } from '@nestjs/common';
 import { Kysely, PostgresDialect } from 'kysely';
 import { DB } from './types';
 import { DatabaseMigrator } from './database.migrator';
-import { DI_DATABASE_TOKEN, InjectDatabase } from './di-tokens';
+import { getDatabaseToken, InjectDatabase } from './di-tokens';
 import { Pool } from 'pg';
 import { ConfigService } from '@nestjs/config';
 
@@ -11,7 +11,7 @@ import { ConfigService } from '@nestjs/config';
   imports: [],
   providers: [
     {
-      provide: DI_DATABASE_TOKEN,
+      provide: getDatabaseToken(),
       useFactory: async (configService: ConfigService) => {
         const logger = new Logger('DatabaseModule');
 
@@ -36,7 +36,7 @@ import { ConfigService } from '@nestjs/config';
     },
     DatabaseMigrator,
   ],
-  exports: [DI_DATABASE_TOKEN],
+  exports: [getDatabaseToken()],
 })
 export class DatabaseModule implements OnModuleDestroy {
   constructor(@InjectDatabase() private readonly db: Kysely<DB>) {}

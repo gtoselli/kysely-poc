@@ -12,14 +12,14 @@ export class ConcertsRepo {
 
   constructor(@InjectDatabase() private readonly database: Kysely<DB>) {}
 
-  public async saveAndSerialize(concert: ConcertAggregate) {
+  public async saveAndSerialize(concert: ConcertAggregate, transaction?: Transaction<DB>) {
     const concertModel: ReservationConcert = {
       id: concert.id,
       seats: JSON.stringify(concert.seatsEntity.seats),
       _version: concert.version + 1,
     };
 
-    await this.database.transaction().execute(async (trx) => {
+    const upsertAndRunTransactionalHook = async (trx: Transaction<DB>) => {
       const result = await trx
         .insertInto('reservation__concerts')
         .values(concertModel)
@@ -34,7 +34,11 @@ export class ConcertsRepo {
       }
 
       await this.transactionalHook?.(trx, concertModel);
-    });
+    };
+
+    await (transaction
+      ? upsertAndRunTransactionalHook(transaction)
+      : this.database.transaction().execute(upsertAndRunTransactionalHook));
   }
 
   public async getByIdAndDeserialize(id: string) {
