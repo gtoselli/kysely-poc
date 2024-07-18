@@ -6,16 +6,12 @@ import { Injectable } from '@nestjs/common';
 export class ConcertsRepo {
   constructor(@InjectDatabase() private readonly database: Kysely<DB>) {}
 
-  public async create(concert: ManagementConcert, transaction?: Transaction<DB>) {
-    await (transaction || this.database).insertInto('management__concerts').values(concert).execute();
+  public async create(concert: ManagementConcert, transaction: Transaction<DB>) {
+    await transaction.insertInto('management__concerts').values(concert).execute();
   }
 
-  public async update(concert: ManagementConcert, transaction?: Transaction<DB>) {
-    await (transaction || this.database)
-      .updateTable('management__concerts')
-      .set(concert)
-      .where('id', '=', concert.id)
-      .execute();
+  public async update(concert: ManagementConcert, transaction: Transaction<DB>) {
+    await transaction.updateTable('management__concerts').set(concert).where('id', '=', concert.id).execute();
   }
 
   public async getById(id: string, transaction?: Transaction<DB>) {
@@ -28,7 +24,7 @@ export class ConcertsRepo {
     return concert ? concert : null;
   }
 
-  public async list() {
-    return await this.database.selectFrom('management__concerts').selectAll().execute();
+  public async list(transaction?: Transaction<DB>) {
+    return await (transaction || this.database).selectFrom('management__concerts').selectAll().execute();
   }
 }
