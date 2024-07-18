@@ -1,4 +1,4 @@
-import { Command } from '../../@infra/command-bus/types';
+import { Command } from '@infra';
 
 type CreateConcertCommandPayload = {
   title: string;

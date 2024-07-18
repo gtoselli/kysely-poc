@@ -79,7 +79,11 @@
       "**/*.(t|j)s"
     ],
     "coverageDirectory": "../coverage",
-    "testEnvironment": "node"
+    "testEnvironment": "node",
+    "moduleNameMapper": {
+      "^@infra/(.*)$": "<rootDir>/@infra/$1",
+      "^@infra": "<rootDir>/@infra"
+    }
   },
   "lint-staged": {
     "*.ts": "eslint --fix",

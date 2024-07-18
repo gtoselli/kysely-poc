@@ -1,6 +1,5 @@
-import { IEventHandler } from '../../@infra/event-bus/types';
+import { EventBus, IEventHandler } from '@infra';
 import { ConcertCreatedEvent } from '../../management/events/concert-created.event';
-import { EventBus } from '../../@infra/event-bus/event-bus.provider';
 import { Injectable } from '@nestjs/common';
 import { ReservationService } from '../reservation.service';
 

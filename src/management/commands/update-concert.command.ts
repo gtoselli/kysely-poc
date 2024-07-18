@@ -1,5 +1,4 @@
-import { Command } from '../../@infra/command-bus/types';
-import { ManagementConcert } from '../../@infra';
+import { Command, ManagementConcert } from '@infra';
 
 type UpdateConcertCommandPayload = Omit<Partial<ManagementConcert>, 'date' | 'id'> & { id: string };
 

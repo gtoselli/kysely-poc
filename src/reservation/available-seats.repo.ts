@@ -1,6 +1,6 @@
 import { Kysely, Transaction } from 'kysely';
 import { Injectable } from '@nestjs/common';
-import { AvailableSeat, DB, InjectDatabase, ReservationConcert } from '../@infra';
+import { AvailableSeat, DB, InjectDatabase, ReservationConcert } from '@infra';
 
 @Injectable()
 export class AvailableSeatsRepo {

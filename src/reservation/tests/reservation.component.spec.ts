@@ -2,13 +2,11 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { ConcertsRepo } from '../concerts.repo';
 import { ReservationService } from '../reservation.service';
 import { AvailableSeatsRepo } from '../available-seats.repo';
-import { DatabaseInMemModule, DB, getDatabaseToken, ManagementConcert } from '../../@infra';
+import { DatabaseInMemModule, DB, EventBus, EventBusModule, getDatabaseToken, ManagementConcert } from '@infra';
 import { CommunicationService } from '../../communication/communication.service';
 import { Kysely } from 'kysely';
 import { ConcertCreatedEventHandler } from '../events/concert-created.event-handler';
 import { ConcertCreatedEvent } from '../../management/events/concert-created.event';
-import { EventBusModule } from '../../@infra/event-bus/event-bus.module';
-import { EventBus } from '../../@infra/event-bus/event-bus.provider';
 
 describe('Reservation', () => {
   let module: TestingModule;

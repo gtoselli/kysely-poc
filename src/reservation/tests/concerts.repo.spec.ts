@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ConcertsRepo } from '../concerts.repo';
-import { DatabaseInMemModule, DB, getDatabaseToken } from '../../@infra';
+import { DatabaseInMemModule, DB, getDatabaseToken } from '@infra';
 import { ConcertAggregate } from '../domain/concert.aggregate';
 import { Kysely } from 'kysely';
 

@@ -1,7 +1,6 @@
-import { DB } from '../../@infra';
+import { DB, ICommandHandler } from '@infra';
 import { ConcertsRepo } from '../concerts.repo';
 import { Injectable } from '@nestjs/common';
-import { ICommandHandler } from '../../@infra/command-bus/types';
 import { Transaction } from 'kysely';
 import { ManagementCommandBus } from '../management.command-bus';
 import { UpdateConcertCommand } from './update-concert.command';

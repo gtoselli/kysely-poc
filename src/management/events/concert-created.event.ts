@@ -1,5 +1,4 @@
-import { DB, ManagementConcert } from '../../@infra';
-import { Event } from '../../@infra/event-bus/types';
+import { DB, Event, ManagementConcert } from '@infra';
 import { Transaction } from 'kysely';
 
 type ConcertCreatedEventPayload = { concert: ManagementConcert; transaction?: Transaction<DB> };

@@ -1,11 +1,9 @@
 import { CreateConcertCommand } from './create-concert.command';
-import { DB, ManagementConcert } from '../../@infra';
+import { DB, EventBus, ICommandHandler, ManagementConcert } from '@infra';
 import { nanoid } from 'nanoid';
 import { ConcertsRepo } from '../concerts.repo';
 import { Injectable } from '@nestjs/common';
-import { ICommandHandler } from '../../@infra/command-bus/types';
 import { Transaction } from 'kysely';
-import { EventBus } from '../../@infra/event-bus/event-bus.provider';
 import { ConcertCreatedEvent } from '../events/concert-created.event';
 import { ManagementCommandBus } from '../management.command-bus';
 

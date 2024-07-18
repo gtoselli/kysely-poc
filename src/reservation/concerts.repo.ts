@@ -1,7 +1,7 @@
 import { Kysely, Transaction } from 'kysely';
 import { Injectable } from '@nestjs/common';
 import { ConcertAggregate } from './domain/concert.aggregate';
-import { DB, InjectDatabase, ReservationConcert } from '../@infra';
+import { DB, InjectDatabase, ReservationConcert } from '@infra';
 import { ConcertSeatsEntity } from './domain/concert-seats.entity';
 
 export type TransactionalHook = (trx: Transaction<DB>, model: ReservationConcert) => Promise<void>;

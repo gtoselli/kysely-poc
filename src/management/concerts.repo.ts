@@ -1,4 +1,4 @@
-import { DB, InjectDatabase, ManagementConcert } from '../@infra';
+import { DB, InjectDatabase, ManagementConcert } from '@infra';
 import { Kysely, Transaction } from 'kysely';
 import { Injectable } from '@nestjs/common';
 

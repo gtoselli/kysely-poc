@@ -1,11 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { DatabaseInMemModule, DB, getDatabaseToken } from '../../@infra';
+import { DatabaseInMemModule, DB, EventBus, getDatabaseToken } from '@infra';
 import { ManagementService } from '../management.service';
 import { ConcertsRepo } from '../concerts.repo';
 import { Kysely } from 'kysely';
 import { CreateConcertCommand } from '../commands/create-concert.command';
 import { CreateConcertCommandHandler } from '../commands/create-concert.command-handler';
-import { EventBus } from '../../@infra/event-bus/event-bus.provider';
 import { ConcertCreatedEvent } from '../events/concert-created.event';
 import { ManagementCommandBus } from '../management.command-bus';
 import { UpdateConcertCommand } from '../commands/update-concert.command';

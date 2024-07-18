@@ -1,8 +1,6 @@
-import { CommandBus } from '../@infra/command-bus/command-bus.provider';
+import { CommandBus, DB, InjectDatabase, ITransactionManager, TransactionManager } from '@infra';
 import { Injectable } from '@nestjs/common';
-import { DB, InjectDatabase } from '../@infra';
 import { Kysely } from 'kysely';
-import { ITransactionManager, TransactionManager } from '../@infra/command-bus/transaction-manager.provider';
 
 @Injectable()
 export class ManagementCommandBus extends CommandBus {
