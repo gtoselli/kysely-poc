@@ -5,10 +5,17 @@ import { ManagementModule } from './management/management.module';
 import { CommunicationModule } from './communication/communication.module';
 import { ConfigModule } from './@infra/config/config.module';
 import { CommandBusModule } from './@infra/command-bus/command-bus.module';
+import { EventBusModule } from './@infra/event-bus/event-bus.module';
 
 @Module({
-  imports: [ConfigModule, DatabaseModule, ReservationModule, ManagementModule, CommunicationModule, CommandBusModule],
-  controllers: [],
-  providers: [],
+  imports: [
+    ConfigModule,
+    DatabaseModule,
+    CommandBusModule,
+    EventBusModule,
+    ReservationModule,
+    ManagementModule,
+    CommunicationModule,
+  ],
 })
 export class AppModule {}
