@@ -1,3 +1,6 @@
+import { Transaction } from 'kysely';
+import { DB } from '../database';
+
 export interface ICommand<TPayload, TResponse = void> {
   name: string;
   payload: TPayload;
@@ -9,7 +12,7 @@ export interface ICommandClass<C extends ICommand<unknown, unknown>> {
 }
 
 export interface ICommandHandler<C extends ICommand<unknown, unknown>> {
-  handle: (command: C) => Promise<C['_returnType']>;
+  handle: (command: C, transaction?: Transaction<DB>) => Promise<C['_returnType']>;
 }
 
 export abstract class Command<TPayload, TResponse = void> implements ICommand<TPayload, TResponse> {

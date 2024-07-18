@@ -75,7 +75,7 @@ describe('Management', () => {
       );
 
       const concert = await service.getConcertById(id);
-      expect(ReservationServiceMock.onConcertCreated).toBeCalledWith(concert);
+      expect(ReservationServiceMock.onConcertCreated).toBeCalledWith(concert, expect.anything());
     });
   });
 

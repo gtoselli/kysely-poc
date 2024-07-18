@@ -1,11 +1,12 @@
 import { CommandBus } from '../../@infra/command-bus/command-bus.provider';
 import { CreateConcertCommand } from './create-concert.command';
-import { ManagementConcert } from '../../@infra';
+import { DB, ManagementConcert } from '../../@infra';
 import { nanoid } from 'nanoid';
 import { ConcertsRepo } from '../concerts.repo';
 import { ReservationService } from '../../reservation/reservation.service';
 import { Injectable } from '@nestjs/common';
 import { ICommandHandler } from '../../@infra/command-bus/types';
+import { Transaction } from 'kysely';
 
 @Injectable()
 export class CreateConcertCommandHandler implements ICommandHandler<CreateConcertCommand> {
@@ -17,7 +18,7 @@ export class CreateConcertCommandHandler implements ICommandHandler<CreateConcer
     localCommandBus.register(CreateConcertCommand, this);
   }
 
-  async handle({ payload }: CreateConcertCommand) {
+  async handle({ payload }: CreateConcertCommand, transaction: Transaction<DB>) {
     const concert: ManagementConcert = {
       id: nanoid(),
       title: payload.title,
@@ -26,9 +27,9 @@ export class CreateConcertCommandHandler implements ICommandHandler<CreateConcer
       seatingCapacity: payload.seatingCapacity,
     };
 
-    await this.concertsRepo.create(concert);
+    await this.concertsRepo.create(concert, transaction);
 
-    await this.reservationService.onConcertCreated(concert);
+    await this.reservationService.onConcertCreated(concert, transaction);
     return { id: concert.id };
   }
 }
