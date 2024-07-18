@@ -3,17 +3,16 @@ import { DatabaseInMemModule, DB, getDatabaseToken } from '../../@infra';
 import { ManagementService } from '../management.service';
 import { ConcertsRepo } from '../concerts.repo';
 import { Kysely } from 'kysely';
-import { CommandBusModule } from '../../@infra/command-bus/command-bus.module';
-import { CommandBus } from '../../@infra/command-bus/command-bus.provider';
 import { CreateConcertCommand } from '../commands/create-concert.command';
 import { CreateConcertCommandHandler } from '../commands/create-concert.command-handler';
 import { EventBus } from '../../@infra/event-bus/event-bus.provider';
 import { ConcertCreatedEvent } from '../events/concert-created.event';
+import { ManagementCommandBus } from '../management.command-bus';
 
 describe('Management', () => {
   let module: TestingModule;
   let service: ManagementService;
-  let commandBus: CommandBus;
+  let managementCommandBus: ManagementCommandBus;
 
   const EventBusMock = {
     publish: jest.fn(),
@@ -21,19 +20,20 @@ describe('Management', () => {
 
   beforeAll(async () => {
     module = await Test.createTestingModule({
-      imports: [DatabaseInMemModule, CommandBusModule],
+      imports: [DatabaseInMemModule],
       providers: [
         ManagementService,
         ConcertsRepo,
         { provide: EventBus, useValue: EventBusMock },
         CreateConcertCommandHandler,
+        ManagementCommandBus,
       ],
     }).compile();
 
     await module.init();
 
     service = module.get(ManagementService);
-    commandBus = module.get(CommandBus);
+    managementCommandBus = module.get(ManagementCommandBus);
   });
 
   afterAll(async () => {
@@ -47,7 +47,7 @@ describe('Management', () => {
 
   describe('createConcert', () => {
     it('should create a concert', async () => {
-      const { id } = await commandBus.send(
+      const { id } = await managementCommandBus.send(
         new CreateConcertCommand({
           title: 'Salmo',
           date: '2024-07-01',
@@ -66,7 +66,7 @@ describe('Management', () => {
     }, 20000);
 
     it('should publish ConcertCreated event', async () => {
-      const { id } = await commandBus.send(
+      const { id } = await managementCommandBus.send(
         new CreateConcertCommand({
           title: 'Salmo',
           date: '2024-07-01',
@@ -84,7 +84,7 @@ describe('Management', () => {
 
   describe('listConcerts', () => {
     it('should list all concerts', async () => {
-      await commandBus.send(
+      await managementCommandBus.send(
         new CreateConcertCommand({
           title: 'Salmo',
           date: '2024-07-01',
@@ -92,7 +92,7 @@ describe('Management', () => {
           seatingCapacity: 100,
         }),
       );
-      await commandBus.send(
+      await managementCommandBus.send(
         new CreateConcertCommand({
           title: 'Jovanotti',
           date: '2024-07-02',
@@ -117,7 +117,7 @@ describe('Management', () => {
     let concertId: string;
 
     beforeEach(async () => {
-      const { id } = await commandBus.send(
+      const { id } = await managementCommandBus.send(
         new CreateConcertCommand({
           title: 'Salmo',
           date: '2024-07-01',

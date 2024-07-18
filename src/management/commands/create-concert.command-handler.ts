@@ -1,4 +1,3 @@
-import { CommandBus } from '../../@infra/command-bus/command-bus.provider';
 import { CreateConcertCommand } from './create-concert.command';
 import { DB, ManagementConcert } from '../../@infra';
 import { nanoid } from 'nanoid';
@@ -8,15 +7,16 @@ import { ICommandHandler } from '../../@infra/command-bus/types';
 import { Transaction } from 'kysely';
 import { EventBus } from '../../@infra/event-bus/event-bus.provider';
 import { ConcertCreatedEvent } from '../events/concert-created.event';
+import { ManagementCommandBus } from '../management.command-bus';
 
 @Injectable()
 export class CreateConcertCommandHandler implements ICommandHandler<CreateConcertCommand> {
   constructor(
     private readonly concertsRepo: ConcertsRepo,
     private readonly eventBus: EventBus,
-    localCommandBus: CommandBus,
+    managementCommandBus: ManagementCommandBus,
   ) {
-    localCommandBus.register(CreateConcertCommand, this);
+    managementCommandBus.register(CreateConcertCommand, this);
   }
 
   async handle({ payload }: CreateConcertCommand, transaction: Transaction<DB>) {

@@ -2,19 +2,19 @@ import { Body, Controller, Get, Param, Post, Put } from '@nestjs/common';
 import { ManagementService } from '../management.service';
 import { CreateConcertDto } from './dto/create-concert.dto';
 import { UpdateConcertDto } from './dto/update-concert.dto';
-import { CommandBus } from '../../@infra/command-bus/command-bus.provider';
 import { CreateConcertCommand } from '../commands/create-concert.command';
+import { ManagementCommandBus } from '../management.command-bus';
 
 @Controller('management')
 export class ManagementController {
   constructor(
     private readonly managementService: ManagementService,
-    private readonly localCommandBus: CommandBus,
+    private readonly managementCommandBus: ManagementCommandBus,
   ) {}
 
   @Post('concerts')
   public async createConcert(@Body() body: CreateConcertDto) {
-    return await this.localCommandBus.send(new CreateConcertCommand(body));
+    return await this.managementCommandBus.send(new CreateConcertCommand(body));
   }
 
   @Get('concerts')
