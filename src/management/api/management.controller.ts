@@ -4,6 +4,7 @@ import { CreateConcertDto } from './dto/create-concert.dto';
 import { UpdateConcertDto } from './dto/update-concert.dto';
 import { CreateConcertCommand } from '../commands/create-concert.command';
 import { ManagementCommandBus } from '../management.command-bus';
+import { UpdateConcertCommand } from '../commands/update-concert.command';
 
 @Controller('management')
 export class ManagementController {
@@ -24,7 +25,7 @@ export class ManagementController {
 
   @Put('concerts/:concertId')
   public async updateConcert(@Param('concertId') concertId: string, @Body() body: UpdateConcertDto) {
-    return await this.managementService.updateConcert(concertId, body);
+    return await this.managementCommandBus.send(new UpdateConcertCommand({ ...body, id: concertId }));
   }
 
   @Get('concerts/:concertId')

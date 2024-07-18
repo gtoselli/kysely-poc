@@ -1,21 +1,9 @@
 import { ConcertsRepo } from './concerts.repo';
-import { ManagementConcert } from '../@infra';
 import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class ManagementService {
   constructor(private readonly concertsRepo: ConcertsRepo) {}
-
-  public async updateConcert(id: string, data: Omit<Partial<ManagementConcert>, 'id' | 'date'>) {
-    const concert = await this.getConcertById(id);
-
-    if (data.title) concert.title = data.title;
-    if (data.description) concert.description = data.description;
-    if (data.seatingCapacity) concert.seatingCapacity = data.seatingCapacity;
-
-    await this.concertsRepo.update(concert);
-    return { id: concert.id };
-  }
 
   public async listConcerts() {
     return await this.concertsRepo.list();

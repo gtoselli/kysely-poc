@@ -8,6 +8,8 @@ import { CreateConcertCommandHandler } from '../commands/create-concert.command-
 import { EventBus } from '../../@infra/event-bus/event-bus.provider';
 import { ConcertCreatedEvent } from '../events/concert-created.event';
 import { ManagementCommandBus } from '../management.command-bus';
+import { UpdateConcertCommand } from '../commands/update-concert.command';
+import { UpdateConcertCommandHandler } from '../commands/update-concert.command-handler';
 
 describe('Management', () => {
   let module: TestingModule;
@@ -22,11 +24,12 @@ describe('Management', () => {
     module = await Test.createTestingModule({
       imports: [DatabaseInMemModule],
       providers: [
+        ManagementCommandBus,
         ManagementService,
         ConcertsRepo,
         { provide: EventBus, useValue: EventBusMock },
         CreateConcertCommandHandler,
-        ManagementCommandBus,
+        UpdateConcertCommandHandler,
       ],
     }).compile();
 
@@ -129,7 +132,7 @@ describe('Management', () => {
     });
 
     it('should update the concert ', async () => {
-      await service.updateConcert(concertId, { title: 'Maurizio Pisciottu' });
+      await managementCommandBus.send(new UpdateConcertCommand({ id: concertId, title: 'Maurizio Pisciottu' }));
 
       const concert = await service.getConcertById(concertId);
       expect(concert.title).toBe('Maurizio Pisciottu');
