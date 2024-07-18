@@ -5,10 +5,15 @@ import { AvailableSeatsRepo } from '../available-seats.repo';
 import { DatabaseInMemModule, DB, getDatabaseToken, ManagementConcert } from '../../@infra';
 import { CommunicationService } from '../../communication/communication.service';
 import { Kysely } from 'kysely';
+import { ConcertCreatedEventHandler } from '../events/concert-created.event-handler';
+import { ConcertCreatedEvent } from '../../management/events/concert-created.event';
+import { EventBusModule } from '../../@infra/event-bus/event-bus.module';
+import { EventBus } from '../../@infra/event-bus/event-bus.provider';
 
 describe('Reservation', () => {
   let module: TestingModule;
   let service: ReservationService;
+  let eventBus: EventBus;
 
   const CommunicationServiceMock = {
     onConcertSeatReserved: jest.fn(),
@@ -16,18 +21,20 @@ describe('Reservation', () => {
 
   beforeAll(async () => {
     module = await Test.createTestingModule({
-      imports: [DatabaseInMemModule],
+      imports: [DatabaseInMemModule, EventBusModule],
       providers: [
         ReservationService,
         ConcertsRepo,
         AvailableSeatsRepo,
         { provide: CommunicationService, useValue: CommunicationServiceMock },
+        ConcertCreatedEventHandler,
       ],
     }).compile();
 
     await module.init();
 
     service = module.get(ReservationService);
+    eventBus = module.get(EventBus);
   });
 
   afterAll(async () => {
@@ -49,7 +56,7 @@ describe('Reservation', () => {
 
   describe('on ConcertCreated', () => {
     it('should create a concert with 10 seats', async () => {
-      await service.onConcertCreated(concert);
+      await eventBus.publish(new ConcertCreatedEvent({ concert }));
 
       const availableSeats = await service.getAvailableSeats(concert.id);
       expect(availableSeats).toHaveLength(10);
@@ -58,7 +65,7 @@ describe('Reservation', () => {
 
   describe('reserveSeat', () => {
     beforeEach(async () => {
-      await service.onConcertCreated(concert);
+      await eventBus.publish(new ConcertCreatedEvent({ concert }));
     });
 
     it('reserved seat should not be listed in available seats', async () => {

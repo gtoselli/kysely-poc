@@ -3,19 +3,20 @@ import { DatabaseInMemModule, DB, getDatabaseToken } from '../../@infra';
 import { ManagementService } from '../management.service';
 import { ConcertsRepo } from '../concerts.repo';
 import { Kysely } from 'kysely';
-import { ReservationService } from '../../reservation/reservation.service';
 import { CommandBusModule } from '../../@infra/command-bus/command-bus.module';
 import { CommandBus } from '../../@infra/command-bus/command-bus.provider';
 import { CreateConcertCommand } from '../commands/create-concert.command';
 import { CreateConcertCommandHandler } from '../commands/create-concert.command-handler';
+import { EventBus } from '../../@infra/event-bus/event-bus.provider';
+import { ConcertCreatedEvent } from '../events/concert-created.event';
 
 describe('Management', () => {
   let module: TestingModule;
   let service: ManagementService;
   let commandBus: CommandBus;
 
-  const ReservationServiceMock = {
-    onConcertCreated: jest.fn(),
+  const EventBusMock = {
+    publish: jest.fn(),
   };
 
   beforeAll(async () => {
@@ -24,7 +25,7 @@ describe('Management', () => {
       providers: [
         ManagementService,
         ConcertsRepo,
-        { provide: ReservationService, useValue: ReservationServiceMock },
+        { provide: EventBus, useValue: EventBusMock },
         CreateConcertCommandHandler,
       ],
     }).compile();
@@ -64,7 +65,7 @@ describe('Management', () => {
       });
     }, 20000);
 
-    it('should notify concert creation to reservation BC', async () => {
+    it('should publish ConcertCreated event', async () => {
       const { id } = await commandBus.send(
         new CreateConcertCommand({
           title: 'Salmo',
@@ -75,7 +76,9 @@ describe('Management', () => {
       );
 
       const concert = await service.getConcertById(id);
-      expect(ReservationServiceMock.onConcertCreated).toBeCalledWith(concert, expect.anything());
+      expect(EventBusMock.publish).toHaveBeenCalledWith(
+        new ConcertCreatedEvent({ concert, transaction: expect.anything() }),
+      );
     });
   });
 
