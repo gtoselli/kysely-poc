@@ -2,7 +2,7 @@ import { ConcertsRepo } from './concerts.repo';
 import { Injectable } from '@nestjs/common';
 
 @Injectable()
-export class ManagementService {
+export class ManagementQueries {
   constructor(private readonly concertsRepo: ConcertsRepo) {}
 
   public async listConcerts() {

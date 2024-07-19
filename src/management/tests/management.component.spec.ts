@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { DatabaseInMemModule, DB, EventBus, getDatabaseToken } from '@infra';
-import { ManagementService } from '../management.service';
+import { ManagementQueries } from '../management.queries';
 import { ConcertsRepo } from '../concerts.repo';
 import { Kysely } from 'kysely';
 import { CreateConcertCommand } from '../commands/create-concert.command';
@@ -12,7 +12,7 @@ import { UpdateConcertCommandHandler } from '../commands/update-concert.command-
 
 describe('Management', () => {
   let module: TestingModule;
-  let service: ManagementService;
+  let managementQueries: ManagementQueries;
   let managementCommandBus: ManagementCommandBus;
 
   const EventBusMock = {
@@ -24,7 +24,7 @@ describe('Management', () => {
       imports: [DatabaseInMemModule],
       providers: [
         ManagementCommandBus,
-        ManagementService,
+        ManagementQueries,
         ConcertsRepo,
         { provide: EventBus, useValue: EventBusMock },
         CreateConcertCommandHandler,
@@ -34,7 +34,7 @@ describe('Management', () => {
 
     await module.init();
 
-    service = module.get(ManagementService);
+    managementQueries = module.get(ManagementQueries);
     managementCommandBus = module.get(ManagementCommandBus);
   });
 
@@ -58,7 +58,7 @@ describe('Management', () => {
         }),
       );
 
-      const concert = await service.getConcertById(id);
+      const concert = await managementQueries.getConcertById(id);
       expect(concert).toMatchObject({
         date: '2024-07-01',
         description: 'Hellraisers',
@@ -77,7 +77,7 @@ describe('Management', () => {
         }),
       );
 
-      const concert = await service.getConcertById(id);
+      const concert = await managementQueries.getConcertById(id);
       expect(EventBusMock.publish).toHaveBeenCalledWith(
         new ConcertCreatedEvent({ concert, transaction: expect.anything() }),
       );
@@ -103,7 +103,7 @@ describe('Management', () => {
         }),
       );
 
-      const concerts = await service.listConcerts();
+      const concerts = await managementQueries.listConcerts();
 
       expect(concerts).toHaveLength(2);
       expect(concerts[1]).toMatchObject({
@@ -133,7 +133,7 @@ describe('Management', () => {
     it('should update the concert ', async () => {
       await managementCommandBus.send(new UpdateConcertCommand({ id: concertId, title: 'Maurizio Pisciottu' }));
 
-      const concert = await service.getConcertById(concertId);
+      const concert = await managementQueries.getConcertById(concertId);
       expect(concert.title).toBe('Maurizio Pisciottu');
     });
   });
