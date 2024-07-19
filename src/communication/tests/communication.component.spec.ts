@@ -1,10 +1,12 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { CommunicationService } from '../communication.service';
 import { EmailChannelProvider } from '../channels/email-channel.provider';
+import { CommunicationCommandBus } from '../communication.command-bus';
+import { SendReservationConfirmationCommand } from '../commands/send-reservation-confirmation.command';
+import { SendReservationConfirmationCommandHandler } from '../commands/send-reservation-confirmation.command-handler';
 
 describe('Communication', () => {
   let module: TestingModule;
-  let service: CommunicationService;
+  let communicationCommandBus: CommunicationCommandBus;
 
   const EmailChannelProviderMock = {
     send: jest.fn(),
@@ -13,12 +15,16 @@ describe('Communication', () => {
   beforeAll(async () => {
     module = await Test.createTestingModule({
       imports: [],
-      providers: [CommunicationService, { provide: EmailChannelProvider, useValue: EmailChannelProviderMock }],
+      providers: [
+        CommunicationCommandBus,
+        { provide: EmailChannelProvider, useValue: EmailChannelProviderMock },
+        SendReservationConfirmationCommandHandler,
+      ],
     }).compile();
 
     await module.init();
 
-    service = module.get(CommunicationService);
+    communicationCommandBus = module.get(CommunicationCommandBus);
   });
 
   afterAll(async () => {
@@ -27,7 +33,7 @@ describe('Communication', () => {
 
   describe('sendReservationConfirmation', () => {
     it('should send a reservation confirmation email', async () => {
-      await service.sendReservationConfirmation('Tailor Swift');
+      await communicationCommandBus.send(new SendReservationConfirmationCommand({ concertTitle: 'Tailor Swift' }));
 
       expect(EmailChannelProviderMock.send).toBeCalledWith(
         'toselli.gabriele@gmail.com',
