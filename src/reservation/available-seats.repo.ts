@@ -1,10 +1,18 @@
 import { Kysely, Transaction } from 'kysely';
 import { Injectable } from '@nestjs/common';
 import { AvailableSeat, DB, InjectDatabase, ReservationConcert } from '@infra';
+import { ConcertsRepo } from './concerts.repo';
 
 @Injectable()
 export class AvailableSeatsRepo {
-  constructor(@InjectDatabase() private readonly database: Kysely<DB>) {}
+  constructor(
+    @InjectDatabase() private readonly database: Kysely<DB>,
+    concertsRepo: ConcertsRepo,
+  ) {
+    concertsRepo.setTransactionalHook(async (trx, concertModel) => {
+      await this.onConcertSaved(trx, concertModel);
+    });
+  }
 
   public async onConcertSaved(trx: Transaction<DB>, concert: ReservationConcert) {
     const seats = JSON.parse(concert.seats) as {
