@@ -3,7 +3,7 @@ import { Injectable } from '@nestjs/common';
 import { AvailableSeatsRepo } from './available-seats.repo';
 
 @Injectable()
-export class ReservationService {
+export class ReservationQueries {
   constructor(
     private readonly repo: ConcertsRepo,
     private readonly availableSeatsRepo: AvailableSeatsRepo,

@@ -1,4 +1,4 @@
-import { ReservationService } from '../reservation.service';
+import { ReservationQueries } from '../reservation.queries';
 import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import { ReserveSeatDto } from './dto/reserve-seat.dto';
 import { ReservationCommandBus } from '../reservation.command-bus';
@@ -7,7 +7,7 @@ import { ReserveSeatCommand } from '../commands/reserve-seat.command';
 @Controller('reservation')
 export class ReservationController {
   constructor(
-    private readonly reservationService: ReservationService,
+    private readonly reservationQueries: ReservationQueries,
     private readonly reservationCommandBus: ReservationCommandBus,
   ) {}
 
@@ -18,6 +18,6 @@ export class ReservationController {
 
   @Get('concerts/:concertId/available-seats')
   public async getAvailableSeats(@Param('concertId') concertId: string) {
-    return await this.reservationService.getAvailableSeats(concertId);
+    return await this.reservationQueries.getAvailableSeats(concertId);
   }
 }

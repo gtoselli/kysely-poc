@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ConcertsRepo } from '../concerts.repo';
-import { ReservationService } from '../reservation.service';
+import { ReservationQueries } from '../reservation.queries';
 import { AvailableSeatsRepo } from '../available-seats.repo';
 import { DatabaseInMemModule, DB, EventBus, getDatabaseToken, ManagementConcert } from '@infra';
 import { Kysely } from 'kysely';
@@ -14,7 +14,7 @@ import { CreateReservationConcertCommandHandler } from '../commands/create-reser
 
 describe('Reservation', () => {
   let module: TestingModule;
-  let service: ReservationService;
+  let reservationQueries: ReservationQueries;
   let reservationCommandBus: ReservationCommandBus;
 
   const EventBusMock = {
@@ -26,7 +26,7 @@ describe('Reservation', () => {
     module = await Test.createTestingModule({
       imports: [DatabaseInMemModule],
       providers: [
-        ReservationService,
+        ReservationQueries,
         ConcertsRepo,
         AvailableSeatsRepo,
         { provide: EventBus, useValue: EventBusMock },
@@ -39,7 +39,7 @@ describe('Reservation', () => {
 
     await module.init();
 
-    service = module.get(ReservationService);
+    reservationQueries = module.get(ReservationQueries);
     reservationCommandBus = module.get(ReservationCommandBus);
   });
 
@@ -66,7 +66,7 @@ describe('Reservation', () => {
         .get<ConcertCreatedEventHandler>(ConcertCreatedEventHandler)
         .handle(new ConcertCreatedEvent({ concert }));
 
-      const availableSeats = await service.getAvailableSeats(concert.id);
+      const availableSeats = await reservationQueries.getAvailableSeats(concert.id);
       expect(availableSeats).toHaveLength(10);
     });
   });
@@ -81,7 +81,7 @@ describe('Reservation', () => {
     it('reserved seat should not be listed in available seats', async () => {
       await reservationCommandBus.send(new ReserveSeatCommand({ concertId: concert.id, seatNumber: 1 }));
 
-      const availableSeats = await service.getAvailableSeats(concert.id);
+      const availableSeats = await reservationQueries.getAvailableSeats(concert.id);
       expect(availableSeats).toHaveLength(9);
       expect(availableSeats.map((s) => s.seatNumber)).not.toContain(1);
       expect(availableSeats.map((s) => s.seatNumber)).toContain(2);
@@ -90,7 +90,7 @@ describe('Reservation', () => {
     it('available seats should be listed', async () => {
       await reservationCommandBus.send(new ReserveSeatCommand({ concertId: concert.id, seatNumber: 1 }));
 
-      const availableSeats = await service.getAvailableSeats(concert.id);
+      const availableSeats = await reservationQueries.getAvailableSeats(concert.id);
       const availableSeat = availableSeats.find((s) => s.seatNumber === 2);
 
       expect(availableSeat).toMatchObject({
