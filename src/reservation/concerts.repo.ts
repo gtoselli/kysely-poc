@@ -41,8 +41,8 @@ export class ConcertsRepo {
       : this.database.transaction().execute(upsertAndRunTransactionalHook));
   }
 
-  public async getByIdAndDeserialize(id: string) {
-    const concertModel = await this.database
+  public async getByIdAndDeserialize(id: string, transaction?: Transaction<DB>) {
+    const concertModel = await (transaction || this.database)
       .selectFrom('reservation__concerts')
       .where('id', '=', id)
       .selectAll()

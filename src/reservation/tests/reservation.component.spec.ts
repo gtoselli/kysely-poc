@@ -7,10 +7,14 @@ import { Kysely } from 'kysely';
 import { ConcertCreatedEventHandler } from '../events/concert-created.event-handler';
 import { ConcertCreatedEvent } from '../../management/events/concert-created.event';
 import { SeatReservedEvent } from '../events/seat-reserved.event';
+import { ReservationCommandBus } from '../reservation.command-bus';
+import { ReserveSeatCommandHandler } from '../commands/reserve-seat.command-handler';
+import { ReserveSeatCommand } from '../commands/reserve-seat.command';
 
 describe('Reservation', () => {
   let module: TestingModule;
   let service: ReservationService;
+  let reservationCommandBus: ReservationCommandBus;
 
   const EventBusMock = {
     publish: jest.fn(),
@@ -26,12 +30,15 @@ describe('Reservation', () => {
         AvailableSeatsRepo,
         { provide: EventBus, useValue: EventBusMock },
         ConcertCreatedEventHandler,
+        ReservationCommandBus,
+        ReserveSeatCommandHandler,
       ],
     }).compile();
 
     await module.init();
 
     service = module.get(ReservationService);
+    reservationCommandBus = module.get(ReservationCommandBus);
   });
 
   afterAll(async () => {
@@ -70,7 +77,7 @@ describe('Reservation', () => {
     });
 
     it('reserved seat should not be listed in available seats', async () => {
-      await service.reserveSeat(concert.id, 1);
+      await reservationCommandBus.send(new ReserveSeatCommand({ concertId: concert.id, seatNumber: 1 }));
 
       const availableSeats = await service.getAvailableSeats(concert.id);
       expect(availableSeats).toHaveLength(9);
@@ -79,7 +86,7 @@ describe('Reservation', () => {
     });
 
     it('available seats should be listed', async () => {
-      await service.reserveSeat(concert.id, 1);
+      await reservationCommandBus.send(new ReserveSeatCommand({ concertId: concert.id, seatNumber: 1 }));
 
       const availableSeats = await service.getAvailableSeats(concert.id);
       const availableSeat = availableSeats.find((s) => s.seatNumber === 2);
@@ -90,7 +97,7 @@ describe('Reservation', () => {
     });
 
     it('should publish SeatReserved event', async () => {
-      await service.reserveSeat(concert.id, 1);
+      await reservationCommandBus.send(new ReserveSeatCommand({ concertId: concert.id, seatNumber: 1 }));
 
       expect(EventBusMock.publish).toHaveBeenCalledWith(
         new SeatReservedEvent({ concertId: concert.id, seatNumber: 1 }),
