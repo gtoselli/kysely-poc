@@ -1,0 +1,21 @@
+meta {
+  name: Update concert
+  type: http
+  seq: 3
+}
+
+put {
+  url: http://localhost:4000/management/concerts/:concertId
+  body: json
+  auth: none
+}
+
+params:path {
+  concertId: AbHsRck6QOGJwxCMBe0ZA
+}
+
+body:json {
+  {
+    "title": "Marracash 2024"
+  }
+}

@@ -1,0 +1,21 @@
+meta {
+  name: Reserve seat
+  type: http
+  seq: 1
+}
+
+post {
+  url: http://localhost:4000/reservation/concerts/:concertId/reserve
+  body: json
+  auth: none
+}
+
+params:path {
+  concertId: AbHsRck6QOGJwxCMBe0ZA
+}
+
+body:json {
+  {
+    "seatNumber": 1
+  }
+}

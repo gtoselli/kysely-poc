@@ -9,6 +9,7 @@ import * as Joi from 'joi';
       isGlobal: true,
       validationSchema: Joi.object({
         DB_CONNECTION_STRING: Joi.string().required(),
+        PORT: Joi.number().required(),
       }),
     }),
   ],
