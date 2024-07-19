@@ -2,29 +2,29 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { ConcertsRepo } from '../concerts.repo';
 import { ReservationService } from '../reservation.service';
 import { AvailableSeatsRepo } from '../available-seats.repo';
-import { DatabaseInMemModule, DB, EventBus, EventBusModule, getDatabaseToken, ManagementConcert } from '@infra';
-import { CommunicationService } from '../../communication/communication.service';
+import { DatabaseInMemModule, DB, EventBus, getDatabaseToken, ManagementConcert } from '@infra';
 import { Kysely } from 'kysely';
 import { ConcertCreatedEventHandler } from '../events/concert-created.event-handler';
 import { ConcertCreatedEvent } from '../../management/events/concert-created.event';
+import { SeatReservedEvent } from '../events/seat-reserved.event';
 
 describe('Reservation', () => {
   let module: TestingModule;
   let service: ReservationService;
-  let eventBus: EventBus;
 
-  const CommunicationServiceMock = {
-    onConcertSeatReserved: jest.fn(),
+  const EventBusMock = {
+    publish: jest.fn(),
+    subscribe: jest.fn(),
   };
 
   beforeAll(async () => {
     module = await Test.createTestingModule({
-      imports: [DatabaseInMemModule, EventBusModule],
+      imports: [DatabaseInMemModule],
       providers: [
         ReservationService,
         ConcertsRepo,
         AvailableSeatsRepo,
-        { provide: CommunicationService, useValue: CommunicationServiceMock },
+        { provide: EventBus, useValue: EventBusMock },
         ConcertCreatedEventHandler,
       ],
     }).compile();
@@ -32,7 +32,6 @@ describe('Reservation', () => {
     await module.init();
 
     service = module.get(ReservationService);
-    eventBus = module.get(EventBus);
   });
 
   afterAll(async () => {
@@ -54,7 +53,9 @@ describe('Reservation', () => {
 
   describe('on ConcertCreated', () => {
     it('should create a concert with 10 seats', async () => {
-      await eventBus.publish(new ConcertCreatedEvent({ concert }));
+      await module
+        .get<ConcertCreatedEventHandler>(ConcertCreatedEventHandler)
+        .handle(new ConcertCreatedEvent({ concert }));
 
       const availableSeats = await service.getAvailableSeats(concert.id);
       expect(availableSeats).toHaveLength(10);
@@ -63,7 +64,9 @@ describe('Reservation', () => {
 
   describe('reserveSeat', () => {
     beforeEach(async () => {
-      await eventBus.publish(new ConcertCreatedEvent({ concert }));
+      await module
+        .get<ConcertCreatedEventHandler>(ConcertCreatedEventHandler)
+        .handle(new ConcertCreatedEvent({ concert }));
     });
 
     it('reserved seat should not be listed in available seats', async () => {
@@ -86,10 +89,12 @@ describe('Reservation', () => {
       });
     });
 
-    it('should notify seat reserved to communication BC', async () => {
+    it('should publish SeatReserved event', async () => {
       await service.reserveSeat(concert.id, 1);
 
-      expect(CommunicationServiceMock.onConcertSeatReserved).toHaveBeenCalledWith(concert.id, 1);
+      expect(EventBusMock.publish).toHaveBeenCalledWith(
+        new SeatReservedEvent({ concertId: concert.id, seatNumber: 1 }),
+      );
     });
   });
 });
