@@ -6,6 +6,7 @@ import { ReservationController } from './api/reservation.controller';
 import { ConcertCreatedEventHandler } from './events/concert-created.event-handler';
 import { ReservationCommandBus } from './reservation.command-bus';
 import { ReserveSeatCommandHandler } from './commands/reserve-seat.command-handler';
+import { CreateReservationConcertCommandHandler } from './commands/create-reservation-concert.command-handler';
 
 @Module({
   providers: [
@@ -15,6 +16,7 @@ import { ReserveSeatCommandHandler } from './commands/reserve-seat.command-handl
     ConcertCreatedEventHandler,
     ReservationCommandBus,
     ReserveSeatCommandHandler,
+    CreateReservationConcertCommandHandler,
   ],
   controllers: [ReservationController],
 })

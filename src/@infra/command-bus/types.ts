@@ -27,5 +27,5 @@ export abstract class Command<TPayload, TResponse = void> implements ICommand<TP
 export interface ICommandBus {
   register<C extends ICommand<unknown, unknown>>(command: ICommandClass<C>, handler: ICommandHandler<C>): void;
 
-  send<C extends ICommand<unknown, unknown>>(command: C): Promise<C['_returnType']>;
+  send<C extends ICommand<unknown, unknown>>(command: C, existingTransaction?: unknown): Promise<C['_returnType']>;
 }

@@ -10,6 +10,7 @@ import { SeatReservedEvent } from '../events/seat-reserved.event';
 import { ReservationCommandBus } from '../reservation.command-bus';
 import { ReserveSeatCommandHandler } from '../commands/reserve-seat.command-handler';
 import { ReserveSeatCommand } from '../commands/reserve-seat.command';
+import { CreateReservationConcertCommandHandler } from '../commands/create-reservation-concert.command-handler';
 
 describe('Reservation', () => {
   let module: TestingModule;
@@ -32,6 +33,7 @@ describe('Reservation', () => {
         ConcertCreatedEventHandler,
         ReservationCommandBus,
         ReserveSeatCommandHandler,
+        CreateReservationConcertCommandHandler,
       ],
     }).compile();
 
