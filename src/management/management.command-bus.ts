@@ -1,11 +1,11 @@
-import { CommandBus, DB, InjectDatabase, ITransactionManager, TransactionManager } from '@infra';
+import { CommandBus, ContextManager, DB, IContextManager, InjectDatabase } from '@infra';
 import { Injectable } from '@nestjs/common';
 import { Kysely } from 'kysely';
 
 @Injectable()
 export class ManagementCommandBus extends CommandBus {
   constructor(@InjectDatabase() database: Kysely<DB>) {
-    const transactionManager: ITransactionManager = new TransactionManager(database);
-    super(transactionManager);
+    const contextManager: IContextManager = new ContextManager(database);
+    super(contextManager);
   }
 }

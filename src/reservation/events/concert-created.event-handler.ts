@@ -19,7 +19,7 @@ export class ConcertCreatedEventHandler implements IEventHandler<ConcertCreatedE
         concertId: payload.concert.id,
         seatingCapacity: payload.concert.seatingCapacity,
       }),
-      payload.transaction,
+      payload.context,
     );
   }
 }

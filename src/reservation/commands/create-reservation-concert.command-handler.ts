@@ -1,8 +1,7 @@
-import { DB, ICommandHandler } from '@infra';
+import { Context, ICommandHandler } from '@infra';
 import { ConcertsRepo } from '../concerts.repo';
 import { Injectable } from '@nestjs/common';
 import { ReservationCommandBus } from '../reservation.command-bus';
-import { Transaction } from 'kysely';
 import { CreateReservationConcertCommand } from './create-reservation-concert.command';
 import { ConcertAggregate } from '../domain/concert.aggregate';
 
@@ -15,10 +14,11 @@ export class CreateReservationConcertCommandHandler implements ICommandHandler<C
     reservationCommandBus.register(CreateReservationConcertCommand, this);
   }
 
-  async handle({ payload }: CreateReservationConcertCommand, transaction: Transaction<DB>) {
+  async handle({ payload }: CreateReservationConcertCommand, context: Context) {
     const concert = ConcertAggregate.factory(payload.concertId, payload.seatingCapacity);
 
-    await this.repo.saveAndSerialize(concert, transaction);
+    await this.repo.saveAndSerialize(concert, context.transaction);
+
     return { id: concert.id };
   }
 }

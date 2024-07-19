@@ -79,7 +79,7 @@ describe('Management', () => {
 
       const concert = await managementQueries.getConcertById(id);
       expect(EventBusMock.publish).toHaveBeenCalledWith(
-        new ConcertCreatedEvent({ concert, transaction: expect.anything() }),
+        new ConcertCreatedEvent({ concert, context: expect.anything() }),
       );
     });
   });

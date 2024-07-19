@@ -1,7 +1,6 @@
-import { DB, ICommandHandler } from '@infra';
+import { Context, ICommandHandler } from '@infra';
 import { ConcertsRepo } from '../concerts.repo';
 import { Injectable } from '@nestjs/common';
-import { Transaction } from 'kysely';
 import { ManagementCommandBus } from '../management.command-bus';
 import { UpdateConcertCommand } from './update-concert.command';
 
@@ -14,7 +13,7 @@ export class UpdateConcertCommandHandler implements ICommandHandler<UpdateConcer
     managementCommandBus.register(UpdateConcertCommand, this);
   }
 
-  async handle({ payload }: UpdateConcertCommand, transaction: Transaction<DB>) {
+  async handle({ payload }: UpdateConcertCommand, { transaction }: Context) {
     const concert = await this.concertsRepo.getById(payload.id, transaction);
     if (!concert) throw new Error('Concert not found');
 

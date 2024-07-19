@@ -1,10 +1,9 @@
-import { DB, EventBus, ICommandHandler } from '@infra';
+import { Context, EventBus, ICommandHandler } from '@infra';
 import { ReserveSeatCommand } from './reserve-seat.command';
 import { SeatReservedEvent } from '../events/seat-reserved.event';
 import { ConcertsRepo } from '../concerts.repo';
 import { Injectable } from '@nestjs/common';
 import { ReservationCommandBus } from '../reservation.command-bus';
-import { Transaction } from 'kysely';
 
 @Injectable()
 export class ReserveSeatCommandHandler implements ICommandHandler<ReserveSeatCommand> {
@@ -16,7 +15,7 @@ export class ReserveSeatCommandHandler implements ICommandHandler<ReserveSeatCom
     reservationCommandBus.register(ReserveSeatCommand, this);
   }
 
-  async handle({ payload }: ReserveSeatCommand, transaction: Transaction<DB>) {
+  async handle({ payload }: ReserveSeatCommand, { transaction }: Context) {
     const concert = await this.repo.getByIdAndDeserialize(payload.concertId, transaction);
     if (!concert) throw new Error(`Concert ${payload.concertId} not found`);
 

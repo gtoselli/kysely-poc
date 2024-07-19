@@ -1,9 +1,8 @@
 import { CreateConcertCommand } from './create-concert.command';
-import { DB, EventBus, ICommandHandler, ManagementConcert } from '@infra';
+import { Context, EventBus, ICommandHandler, ManagementConcert } from '@infra';
 import { nanoid } from 'nanoid';
 import { ConcertsRepo } from '../concerts.repo';
 import { Injectable } from '@nestjs/common';
-import { Transaction } from 'kysely';
 import { ConcertCreatedEvent } from '../events/concert-created.event';
 import { ManagementCommandBus } from '../management.command-bus';
 
@@ -17,7 +16,7 @@ export class CreateConcertCommandHandler implements ICommandHandler<CreateConcer
     managementCommandBus.register(CreateConcertCommand, this);
   }
 
-  async handle({ payload }: CreateConcertCommand, transaction: Transaction<DB>) {
+  async handle({ payload }: CreateConcertCommand, context: Context) {
     const concert: ManagementConcert = {
       id: nanoid(),
       title: payload.title,
@@ -26,9 +25,9 @@ export class CreateConcertCommandHandler implements ICommandHandler<CreateConcer
       seatingCapacity: payload.seatingCapacity,
     };
 
-    await this.concertsRepo.create(concert, transaction);
+    await this.concertsRepo.create(concert, context.transaction);
 
-    await this.eventBus.publish(new ConcertCreatedEvent({ concert, transaction }));
+    await this.eventBus.publish(new ConcertCreatedEvent({ concert, context }));
     return { id: concert.id };
   }
 }

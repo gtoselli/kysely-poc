@@ -1,7 +1,6 @@
-import { DB, Event, ManagementConcert } from '@infra';
-import { Transaction } from 'kysely';
+import { Context, Event, ManagementConcert } from '@infra';
 
-type ConcertCreatedEventPayload = { concert: ManagementConcert; transaction?: Transaction<DB> };
+type ConcertCreatedEventPayload = { concert: ManagementConcert; context?: Context };
 
 export class ConcertCreatedEvent extends Event<ConcertCreatedEventPayload> {
   constructor(public readonly payload: ConcertCreatedEventPayload) {

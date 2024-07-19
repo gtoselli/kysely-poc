@@ -1,5 +1,4 @@
-import { Transaction } from 'kysely';
-import { DB } from '../database';
+import { Context } from '@infra/command-bus/context-manager.provider';
 
 export interface ICommand<TPayload, TResponse = void> {
   name: string;
@@ -12,7 +11,7 @@ export interface ICommandClass<C extends ICommand<unknown, unknown>> {
 }
 
 export interface ICommandHandler<C extends ICommand<unknown, unknown>> {
-  handle: (command: C, transaction?: Transaction<DB>) => Promise<C['_returnType']>;
+  handle: (command: C, context?: Context) => Promise<C['_returnType']>;
 }
 
 export abstract class Command<TPayload, TResponse = void> implements ICommand<TPayload, TResponse> {
