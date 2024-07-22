@@ -21,6 +21,12 @@ pnpm run test:e2e
 
 # Run other tests
 pnpm run test
+
+# Start docker compose
+docker compose up -d
+
+# Start app
+pnpm run start:dev
 ```
 
 ### Event storming
