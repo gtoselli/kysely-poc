@@ -1,6 +1,8 @@
 import { Context } from '@infra/command-bus/context-manager.provider';
+import { nanoid } from 'nanoid';
 
 export interface ICommand<TPayload, TResponse = void> {
+  id: string;
   name: string;
   payload: TPayload;
   _returnType: TResponse;
@@ -15,11 +17,13 @@ export interface ICommandHandler<C extends ICommand<unknown, unknown>> {
 }
 
 export abstract class Command<TPayload, TResponse = void> implements ICommand<TPayload, TResponse> {
+  readonly id: string;
   readonly name: string;
   readonly _returnType: TResponse;
 
   protected constructor(public readonly payload: TPayload) {
     this.name = this.constructor.name;
+    this.id = `cmd_${nanoid()}`;
   }
 }
 
