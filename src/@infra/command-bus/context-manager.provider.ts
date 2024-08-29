@@ -1,8 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { DB, InjectDatabase } from '../database';
 import { Kysely, Transaction } from 'kysely';
-import { nanoid } from 'nanoid';
 import { inspect } from 'util';
+import { generateId } from '@infra/ids';
 
 export type Context = {
   transaction: Transaction<DB>;
@@ -36,7 +36,7 @@ export class ContextManager implements IContextManager {
   }
 
   private async createFreshContext<T>(operation: (context: Context) => Promise<T>) {
-    const contextId = `ctx_${nanoid()}`;
+    const contextId = generateId('ctx');
     const now = new Date();
     this.logger.debug(`Create fresh context with id ${contextId} \u{1F4BE}`);
 

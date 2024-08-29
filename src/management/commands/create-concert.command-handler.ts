@@ -1,10 +1,10 @@
 import { CreateConcertCommand } from './create-concert.command';
 import { Context, EventBus, ICommandHandler, ManagementConcert } from '@infra';
-import { nanoid } from 'nanoid';
 import { ConcertsRepo } from '../concerts.repo';
 import { Injectable } from '@nestjs/common';
 import { ConcertCreatedEvent } from '../events/concert-created.event';
 import { ManagementCommandBus } from '../management.command-bus';
+import { generateId } from '@infra/ids';
 
 @Injectable()
 export class CreateConcertCommandHandler implements ICommandHandler<CreateConcertCommand> {
@@ -18,7 +18,7 @@ export class CreateConcertCommandHandler implements ICommandHandler<CreateConcer
 
   async handle({ payload }: CreateConcertCommand, context: Context) {
     const concert: ManagementConcert = {
-      id: nanoid(),
+      id: generateId('concert'),
       title: payload.title,
       date: payload.date,
       description: payload.description,
