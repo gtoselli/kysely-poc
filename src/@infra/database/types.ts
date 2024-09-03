@@ -1,26 +1,5 @@
-export type ReservationConcert = {
-  id: string;
-  seats: string;
+import { PrismaClient } from '@prisma/client';
+import * as runtime from '@prisma/client/runtime/library';
 
-  _version: number;
-};
-
-export type AvailableSeat = {
-  id: string;
-  concertId: string;
-  seatNumber: number;
-};
-
-export type ManagementConcert = {
-  id: string;
-  title: string;
-  description: string;
-  date: string;
-  seatingCapacity: number;
-};
-
-export type DB = {
-  ['reservation__available_seats']: AvailableSeat;
-  ['reservation__concerts']: ReservationConcert;
-  ['management__concerts']: ManagementConcert;
-};
+export type Database = PrismaClient;
+export type Transaction = Omit<PrismaClient, runtime.ITXClientDenyList>;

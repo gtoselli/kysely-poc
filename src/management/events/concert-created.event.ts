@@ -1,4 +1,5 @@
-import { Context, Event, ManagementConcert } from '@infra';
+import { Context, Event } from '@infra';
+import { ManagementConcert } from '@prisma/client';
 
 type ConcertCreatedEventPayload = { concert: ManagementConcert; context?: Context };
 

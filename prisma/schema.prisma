@@ -1,0 +1,40 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DB_CONNECTION_STRING")
+}
+
+model ReservationConcert {
+  id    String     @id
+  seats String
+  version Int
+
+  @@map("reservation__concerts")
+}
+
+model AvailableSeat {
+  id    String     @id
+  concertId String
+  seatNumber Int
+
+  @@map("reservation__available_seats")
+}
+
+model ManagementConcert {
+  id    String     @id
+  title String
+  description String
+  date String
+  seatingCapacity Int
+
+  @@map("management__concerts")
+}

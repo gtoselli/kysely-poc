@@ -1,10 +1,11 @@
 import { CreateConcertCommand } from './create-concert.command';
-import { Context, EventBus, ICommandHandler, ManagementConcert } from '@infra';
+import { Context, EventBus, ICommandHandler } from '@infra';
 import { ConcertsRepo } from '../concerts.repo';
 import { Injectable } from '@nestjs/common';
 import { ConcertCreatedEvent } from '../events/concert-created.event';
 import { ManagementCommandBus } from '../management.command-bus';
 import { generateId } from '@infra/ids';
+import { ManagementConcert } from '@prisma/client';
 
 @Injectable()
 export class CreateConcertCommandHandler implements ICommandHandler<CreateConcertCommand> {

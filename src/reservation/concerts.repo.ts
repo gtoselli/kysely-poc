@@ -1,58 +1,51 @@
-import { Kysely, Transaction } from 'kysely';
 import { Injectable } from '@nestjs/common';
 import { ConcertAggregate } from './domain/concert.aggregate';
-import { DB, InjectDatabase, ReservationConcert } from '@infra';
+import { Database, InjectDatabase, Transaction } from '@infra';
 import { ConcertSeatsEntity } from './domain/concert-seats.entity';
+import { ReservationConcert } from '@prisma/client';
 
-export type TransactionalHook = (trx: Transaction<DB>, model: ReservationConcert) => Promise<void>;
+export type TransactionalHook = (trx: Transaction, model: ReservationConcert) => Promise<void>;
 
 @Injectable()
 export class ConcertsRepo {
   private transactionalHook?: TransactionalHook;
 
-  constructor(@InjectDatabase() private readonly database: Kysely<DB>) {}
+  constructor(@InjectDatabase() private readonly database: Database) {}
 
-  public async saveAndSerialize(concert: ConcertAggregate, transaction?: Transaction<DB>) {
+  public async saveAndSerialize(concert: ConcertAggregate, transaction: Transaction) {
     const concertModel: ReservationConcert = {
       id: concert.id,
       seats: JSON.stringify(concert.seatsEntity.seats),
-      _version: concert.version + 1,
+      version: concert.version + 1,
     };
 
-    const upsertAndRunTransactionalHook = async (trx: Transaction<DB>) => {
-      const result = await trx
-        .insertInto('reservation__concerts')
-        .values(concertModel)
-        .onConflict((oc) =>
-          oc.column('id').doUpdateSet(concertModel).where('reservation__concerts._version', '=', concert.version),
-        )
-        .execute();
-
-      if (result?.[0].numInsertedOrUpdatedRows === 0n) {
+    const upsertAndRunTransactionalHook = async (trx: Transaction) => {
+      const existingAggregate = await transaction.reservationConcert.findUnique({ where: { id: concert.id } });
+      if (existingAggregate && existingAggregate.version !== concert.version) {
         if (concert.version === 0) throw new Error(`Cannot save aggregate ${concert.id} due duplicated id`);
         throw new Error(`Cannot save aggregate ${concert.id} due optimistic lock`);
       }
 
+      await transaction.reservationConcert.upsert({
+        where: { id: concert.id },
+        create: concertModel,
+        update: concertModel,
+      });
+
       await this.transactionalHook?.(trx, concertModel);
     };
 
-    await (transaction
-      ? upsertAndRunTransactionalHook(transaction)
-      : this.database.transaction().execute(upsertAndRunTransactionalHook));
+    await upsertAndRunTransactionalHook(transaction);
   }
 
-  public async getByIdAndDeserialize(id: string, transaction?: Transaction<DB>) {
-    const concertModel = await (transaction || this.database)
-      .selectFrom('reservation__concerts')
-      .where('id', '=', id)
-      .selectAll()
-      .executeTakeFirst();
+  public async getByIdAndDeserialize(id: string, transaction?: Transaction) {
+    const concertModel = await (transaction || this.database).reservationConcert.findFirst({ where: { id } });
 
     return concertModel
       ? new ConcertAggregate(
           concertModel.id,
           new ConcertSeatsEntity(JSON.parse(concertModel.seats)),
-          concertModel._version,
+          concertModel.version,
         )
       : null;
   }

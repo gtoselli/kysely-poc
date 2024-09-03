@@ -1,12 +1,12 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ConcertsRepo } from '../concerts.repo';
-import { DatabaseInMemModule, DB, getDatabaseToken } from '@infra';
+import { Database, DatabaseInMemModule, getDatabaseToken } from '@infra';
 import { ConcertAggregate } from '../domain/concert.aggregate';
-import { Kysely } from 'kysely';
 
 describe('Concerts repo', () => {
   let module: TestingModule;
   let repo: ConcertsRepo;
+  let database: Database;
 
   beforeAll(async () => {
     module = await Test.createTestingModule({
@@ -17,6 +17,7 @@ describe('Concerts repo', () => {
     await module.init();
 
     repo = module.get(ConcertsRepo);
+    database = module.get(getDatabaseToken());
   });
 
   afterAll(async () => {
@@ -24,7 +25,7 @@ describe('Concerts repo', () => {
   });
 
   afterEach(async () => {
-    await (module.get(getDatabaseToken()) as Kysely<DB>).deleteFrom('reservation__concerts').execute();
+    await database.reservationConcert.deleteMany({});
   });
 
   const id = 'foo-id';
@@ -32,22 +33,25 @@ describe('Concerts repo', () => {
   describe('Optimistic lock', () => {
     it('should throw an error if the version is outdated', async () => {
       const concert = ConcertAggregate.factory(id, 10);
-      await repo.saveAndSerialize(concert);
+
+      await database.$transaction((trx) => repo.saveAndSerialize(concert, trx));
 
       const instance1 = await repo.getByIdAndDeserialize(id);
       const instance2 = await repo.getByIdAndDeserialize(id);
-      await repo.saveAndSerialize(instance2!);
+      await database.$transaction((trx) => repo.saveAndSerialize(instance2!, trx));
 
-      await expect(repo.saveAndSerialize(instance1!)).rejects.toThrow(
+      await expect(database.$transaction((trx) => repo.saveAndSerialize(instance1!, trx))).rejects.toThrow(
         'Cannot save aggregate foo-id due optimistic lock',
       );
     });
 
     it('should throw an error if the id is duplicated', async () => {
       const concert = ConcertAggregate.factory(id, 10);
-      await repo.saveAndSerialize(concert);
+      await database.$transaction((trx) => repo.saveAndSerialize(concert, trx));
 
-      await expect(repo.saveAndSerialize(concert!)).rejects.toThrow('Cannot save aggregate foo-id due duplicated id');
+      await expect(database.$transaction((trx) => repo.saveAndSerialize(concert, trx))).rejects.toThrow(
+        'Cannot save aggregate foo-id due duplicated id',
+      );
     });
   });
 });

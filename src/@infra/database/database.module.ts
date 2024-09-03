@@ -1,10 +1,8 @@
 import { Global, Logger, Module, OnModuleDestroy } from '@nestjs/common';
-import { Kysely, PostgresDialect } from 'kysely';
-import { DB } from './types';
-import { DatabaseMigrator } from './database.migrator';
 import { getDatabaseToken, InjectDatabase } from './di-tokens';
-import { Pool } from 'pg';
 import { ConfigService } from '@nestjs/config';
+import { PrismaClient } from '@prisma/client';
+import { Database } from '@infra/database/types';
 
 @Global()
 @Module({
@@ -15,33 +13,45 @@ import { ConfigService } from '@nestjs/config';
       useFactory: async (configService: ConfigService) => {
         const logger = new Logger('DatabaseModule');
 
-        const dialect = new PostgresDialect({
-          pool: new Pool({ connectionString: configService.getOrThrow('DB_CONNECTION_STRING') }),
+        const datasourceUrl = configService.getOrThrow('DB_CONNECTION_STRING');
+        logger.debug(`Starting prisma on ${configService.getOrThrow('DB_CONNECTION_STRING')}`);
+
+        const prismaClient = new PrismaClient({
+          datasourceUrl,
+          log: [
+            {
+              emit: 'event',
+              level: 'query',
+            },
+            {
+              emit: 'stdout',
+              level: 'error',
+            },
+            {
+              emit: 'stdout',
+              level: 'info',
+            },
+            {
+              emit: 'stdout',
+              level: 'warn',
+            },
+          ],
+        });
+        prismaClient.$on('query', (e) => {
+          logger.debug(`Query ${e.query} ${e.params} executed in ${e.duration.toFixed(2)}ms`);
         });
 
-        return new Kysely<DB>({
-          dialect,
-          log(event) {
-            if (event.level === 'query') {
-              logger.debug(
-                `Query ${event.query.sql} ${event.query.parameters} executed in ${event.queryDurationMillis.toFixed(2)}ms`,
-              );
-            } else if (event.level === 'error') {
-              logger.error(event.error);
-            }
-          },
-        });
+        return prismaClient;
       },
       inject: [ConfigService],
     },
-    DatabaseMigrator,
   ],
   exports: [getDatabaseToken()],
 })
 export class DatabaseModule implements OnModuleDestroy {
-  constructor(@InjectDatabase() private readonly db: Kysely<DB>) {}
+  constructor(@InjectDatabase() private readonly database: Database) {}
 
   async onModuleDestroy() {
-    await this.db.destroy();
+    await this.database.$disconnect();
   }
 }

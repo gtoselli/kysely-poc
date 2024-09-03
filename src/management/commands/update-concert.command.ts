@@ -1,4 +1,5 @@
-import { Command, ManagementConcert } from '@infra';
+import { Command } from '@infra';
+import { ManagementConcert } from '@prisma/client';
 
 type UpdateConcertCommandPayload = Omit<Partial<ManagementConcert>, 'date' | 'id'> & { id: string };
 

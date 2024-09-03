@@ -2,8 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { ConcertsRepo } from '../concerts.repo';
 import { ReservationQueries } from '../reservation.queries';
 import { AvailableSeatsRepo } from '../available-seats.repo';
-import { DatabaseInMemModule, DB, EventBus, getDatabaseToken, ManagementConcert } from '@infra';
-import { Kysely } from 'kysely';
+import { DatabaseInMemModule, EventBus, getDatabaseToken } from '@infra';
 import { ConcertCreatedEventHandler } from '../events/concert-created.event-handler';
 import { ConcertCreatedEvent } from '../../management/events/concert-created.event';
 import { SeatReservedEvent } from '../events/seat-reserved.event';
@@ -11,6 +10,7 @@ import { ReservationCommandBus } from '../reservation.command-bus';
 import { ReserveSeatCommandHandler } from '../commands/reserve-seat.command-handler';
 import { ReserveSeatCommand } from '../commands/reserve-seat.command';
 import { CreateReservationConcertCommandHandler } from '../commands/create-reservation-concert.command-handler';
+import { ManagementConcert, PrismaClient } from '@prisma/client';
 
 describe('Reservation', () => {
   let module: TestingModule;
@@ -48,8 +48,8 @@ describe('Reservation', () => {
   });
 
   afterEach(async () => {
-    await (module.get(getDatabaseToken()) as Kysely<DB>).deleteFrom('reservation__concerts').execute();
-    await (module.get(getDatabaseToken()) as Kysely<DB>).deleteFrom('reservation__available_seats').execute();
+    await module.get<PrismaClient>(getDatabaseToken()).reservationConcert.deleteMany({});
+    await module.get<PrismaClient>(getDatabaseToken()).availableSeat.deleteMany({});
   });
 
   const concert: ManagementConcert = {

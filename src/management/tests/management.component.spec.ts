@@ -1,14 +1,14 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { DatabaseInMemModule, DB, EventBus, getDatabaseToken } from '@infra';
+import { DatabaseInMemModule, EventBus, getDatabaseToken } from '@infra';
 import { ManagementQueries } from '../management.queries';
 import { ConcertsRepo } from '../concerts.repo';
-import { Kysely } from 'kysely';
 import { CreateConcertCommand } from '../commands/create-concert.command';
 import { CreateConcertCommandHandler } from '../commands/create-concert.command-handler';
 import { ConcertCreatedEvent } from '../events/concert-created.event';
 import { ManagementCommandBus } from '../management.command-bus';
 import { UpdateConcertCommand } from '../commands/update-concert.command';
 import { UpdateConcertCommandHandler } from '../commands/update-concert.command-handler';
+import { PrismaClient } from '@prisma/client';
 
 describe('Management', () => {
   let module: TestingModule;
@@ -43,8 +43,8 @@ describe('Management', () => {
   });
 
   afterEach(async () => {
-    const database = module.get(getDatabaseToken()) as Kysely<DB>;
-    await database.deleteFrom('management__concerts').execute();
+    const database = module.get<PrismaClient>(getDatabaseToken());
+    await database.managementConcert.deleteMany({});
   });
 
   describe('createConcert', () => {

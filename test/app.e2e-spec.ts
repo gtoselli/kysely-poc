@@ -5,6 +5,7 @@ import { EmailChannelProvider } from '../src/communication/channels/email-channe
 import { GenericContainer, StartedTestContainer } from 'testcontainers';
 import { ManagementController } from '../src/management/api/management.controller';
 import { ReservationController } from '../src/reservation/api/reservation.controller';
+import { execSync } from 'child_process';
 
 describe('App (e2e)', () => {
   let app: INestApplication;
@@ -19,6 +20,10 @@ describe('App (e2e)', () => {
       .withExposedPorts({ host: 5432, container: 5432 })
       .withEnvironment({ POSTGRES_PASSWORD: 'password' })
       .start();
+
+    execSync(`pnpm exec prisma migrate dev`, {
+      stdio: 'inherit',
+    });
 
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],

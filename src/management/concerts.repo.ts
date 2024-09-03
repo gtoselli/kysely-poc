@@ -1,30 +1,26 @@
-import { DB, InjectDatabase, ManagementConcert } from '@infra';
-import { Kysely, Transaction } from 'kysely';
+import { Database, InjectDatabase, Transaction } from '@infra';
 import { Injectable } from '@nestjs/common';
+import { ManagementConcert } from '@prisma/client';
 
 @Injectable()
 export class ConcertsRepo {
-  constructor(@InjectDatabase() private readonly database: Kysely<DB>) {}
+  constructor(@InjectDatabase() private readonly database: Database) {}
 
-  public async create(concert: ManagementConcert, transaction: Transaction<DB>) {
-    await transaction.insertInto('management__concerts').values(concert).execute();
+  public async create(concert: ManagementConcert, transaction: Transaction) {
+    await transaction.managementConcert.create({ data: concert });
   }
 
-  public async update(concert: ManagementConcert, transaction: Transaction<DB>) {
-    await transaction.updateTable('management__concerts').set(concert).where('id', '=', concert.id).execute();
+  public async update(concert: ManagementConcert, transaction: Transaction) {
+    await transaction.managementConcert.update({ where: { id: concert.id }, data: concert });
   }
 
-  public async getById(id: string, transaction?: Transaction<DB>) {
-    const concert = await (transaction || this.database)
-      .selectFrom('management__concerts')
-      .selectAll()
-      .where('id', '=', id)
-      .executeTakeFirst();
+  public async getById(id: string, transaction?: Transaction) {
+    const concert = await (transaction || this.database).managementConcert.findUnique({ where: { id } });
 
     return concert ? concert : null;
   }
 
-  public async list(transaction?: Transaction<DB>) {
-    return await (transaction || this.database).selectFrom('management__concerts').selectAll().execute();
+  public async list(transaction?: Transaction) {
+    return (transaction || this.database).managementConcert.findMany({});
   }
 }

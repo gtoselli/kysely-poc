@@ -1,8 +1,9 @@
 import { Global, Logger, Module } from '@nestjs/common';
-import { Kysely, SqliteDialect } from 'kysely';
-import { DB, getDatabaseToken } from './index';
-import * as SQLite from 'better-sqlite3';
-import { DatabaseMigrator } from './database.migrator';
+import { getDatabaseToken } from './di-tokens';
+import { PrismaClient } from '@prisma/client';
+import { execSync } from 'child_process';
+
+const TEST_DB_CONNECTION_STRING = 'postgresql://postgres:password@localhost/test';
 
 @Global()
 @Module({
@@ -13,26 +14,42 @@ import { DatabaseMigrator } from './database.migrator';
       useFactory: async () => {
         const logger = new Logger('DatabaseModule');
 
-        const dialect = new SqliteDialect({
-          database: new SQLite(':memory:'),
+        const datasourceUrl = TEST_DB_CONNECTION_STRING;
+        logger.debug(`Starting prisma on ${datasourceUrl} (test)`);
+
+        execSync(`DB_CONNECTION_STRING="${datasourceUrl}" pnpm exec prisma migrate dev`, {
+          stdio: 'inherit',
         });
 
-        return new Kysely<DB>({
-          dialect,
-          log(event) {
-            if (event.level === 'query') {
-              logger.debug(
-                `Query ${event.query.sql} ${event.query.parameters} executed in ${event.queryDurationMillis.toFixed(2)}ms`,
-              );
-            } else if (event.level === 'error') {
-              logger.error(event.error);
-            }
-          },
+        const prismaClient = new PrismaClient({
+          datasourceUrl,
+          log: [
+            {
+              emit: 'event',
+              level: 'query',
+            },
+            {
+              emit: 'stdout',
+              level: 'error',
+            },
+            {
+              emit: 'stdout',
+              level: 'info',
+            },
+            {
+              emit: 'stdout',
+              level: 'warn',
+            },
+          ],
         });
+        prismaClient.$on('query', (e) => {
+          logger.debug(`Query ${e.query} ${e.params} executed in ${e.duration.toFixed(2)}ms`);
+        });
+
+        return prismaClient;
       },
       inject: [],
     },
-    DatabaseMigrator,
   ],
   exports: [getDatabaseToken()],
 })
