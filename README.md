@@ -1,4 +1,4 @@
-# Kysely poc
+# Kysely poc (prisma version)
 
 ### Purpose
 This is a proof of concept for [Kysely](https://github.com/kysely-org/kysely) library. It is a simple ticket reservation system with 3 bounded contexts: reservation, management and communication.
@@ -19,11 +19,14 @@ pnpm i
 # Run e2e tests
 pnpm run test:e2e
 
+# Start docker compose
+docker compose up -d
+
 # Run other tests
 pnpm run test
 
-# Start docker compose
-docker compose up -d
+# Run migrations
+pnpm exec prisma migrate dev
 
 # Start app
 pnpm run start:dev
