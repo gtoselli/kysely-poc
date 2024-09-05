@@ -38,6 +38,7 @@ import { Database } from '@infra/database/types';
           ],
         });
         prismaClient.$on('query', (e) => {
+          if (JSON.stringify(e).includes('outbox')) return;
           logger.debug(`Query ${e.query} ${e.params} executed in ${e.duration.toFixed(2)}ms`);
         });
 

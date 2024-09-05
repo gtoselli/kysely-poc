@@ -14,27 +14,37 @@ datasource db {
 }
 
 model ReservationConcert {
-  id    String     @id
-  seats String
+  id      String @id
+  seats   String
   version Int
 
   @@map("reservation__concerts")
 }
 
 model AvailableSeat {
-  id    String     @id
-  concertId String
+  id         String @id
+  concertId  String
   seatNumber Int
 
   @@map("reservation__available_seats")
 }
 
 model ManagementConcert {
-  id    String     @id
-  title String
-  description String
-  date String
+  id              String @id
+  title           String
+  description     String
+  date            String
   seatingCapacity Int
 
   @@map("management__concerts")
+}
+
+model OutboxEvent {
+  id          String    @id
+  event       Json
+  scheduledAt DateTime
+  status      String
+  publishedAt DateTime?
+
+  @@map("outbox_events")
 }

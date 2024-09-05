@@ -1,4 +1,4 @@
-import { Context, EventBus, ICommandHandler } from '@infra';
+import { Context, EventBus, ICommandHandler, OutboxProvider } from '@infra';
 import { ReserveSeatCommand } from './reserve-seat.command';
 import { SeatReservedEvent } from '../events/seat-reserved.event';
 import { ConcertsRepo } from '../concerts.repo';
@@ -10,6 +10,7 @@ export class ReserveSeatCommandHandler implements ICommandHandler<ReserveSeatCom
   constructor(
     private readonly repo: ConcertsRepo,
     private readonly eventBus: EventBus,
+    private readonly outboxProvider: OutboxProvider,
     reservationCommandBus: ReservationCommandBus,
   ) {
     reservationCommandBus.register(ReserveSeatCommand, this);
@@ -22,6 +23,8 @@ export class ReserveSeatCommandHandler implements ICommandHandler<ReserveSeatCom
     concert.reserveSeat(payload.seatNumber);
     await this.repo.saveAndSerialize(concert, transaction);
 
-    await this.eventBus.publish(new SeatReservedEvent({ concertId: concert.id, seatNumber: payload.seatNumber }));
+    const event = new SeatReservedEvent({ concertId: concert.id, seatNumber: payload.seatNumber });
+    await this.eventBus.publish(event);
+    await this.outboxProvider.scheduleEvents([event], transaction);
   }
 }

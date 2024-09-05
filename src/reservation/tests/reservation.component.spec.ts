@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { ConcertsRepo } from '../concerts.repo';
 import { ReservationQueries } from '../reservation.queries';
 import { AvailableSeatsRepo } from '../available-seats.repo';
-import { DatabaseInMemModule, EventBus, getDatabaseToken } from '@infra';
+import { DatabaseInMemModule, EventBus, getDatabaseToken, OutboxProvider } from '@infra';
 import { ConcertCreatedEventHandler } from '../events/concert-created.event-handler';
 import { ConcertCreatedEvent } from '../../management/events/concert-created.event';
 import { SeatReservedEvent } from '../events/seat-reserved.event';
@@ -22,6 +22,10 @@ describe('Reservation', () => {
     subscribe: jest.fn(),
   };
 
+  const OutboxMock = {
+    scheduleEvents: jest.fn(),
+  };
+
   beforeAll(async () => {
     module = await Test.createTestingModule({
       imports: [DatabaseInMemModule],
@@ -30,6 +34,7 @@ describe('Reservation', () => {
         ConcertsRepo,
         AvailableSeatsRepo,
         { provide: EventBus, useValue: EventBusMock },
+        { provide: OutboxProvider, useValue: OutboxMock },
         ConcertCreatedEventHandler,
         ReservationCommandBus,
         ReserveSeatCommandHandler,
